@@ -153,14 +153,12 @@ RCT_EXPORT_METHOD(fitCoordinates:(nonnull NSNumber *)reactTag
 -(void)mapView:(MAMapView *)mapView didSelectAnnotationView:(MAAnnotationView *)view{
   if ([view.annotation isKindOfClass:[AMapMarker class]]) {
     [(AMapMarker*)view.annotation showCallout:YES];
-    [(AMapMarker*)view.annotation setSelected:YES animated:YES];
   }
 }
 
 -(void)mapView:(MAMapView *)mapView didDeselectAnnotationView:(MAAnnotationView *)view{
   if ([view.annotation isKindOfClass:[AMapMarker class]]) {
     [(AMapMarker*)view.annotation dismissCallout:YES];
-    [(AMapMarker*)view.annotation setSelected:NO animated:YES];
   }
 }
 

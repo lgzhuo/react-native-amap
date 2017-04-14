@@ -63,7 +63,6 @@ export default class AMapMarker extends Component {
          * offsetX - callOut相对原点的横向像素偏移量，单位：像素。
          * offsetY - callOut相对原点的纵向像素偏移量，单位：像素。
          *
-         * @platform android
          */
         callOutOffset: PropTypes.shape({
             offsetX: PropTypes.number,

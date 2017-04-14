@@ -10,6 +10,7 @@ import {
     Alert
 } from 'react-native';
 import AMap,{AMapMarker,AMapService,AMapPolyline,AMapCallout} from 'react-native-amap'
+import CustomCallout from './CustomCallout'
 
 let clusterData = [];
 for (let i=0;i<100;i++){
@@ -34,17 +35,17 @@ export default class App extends Component {
                       clusterSize={30}
                       ref="map"
                 onCluster={this._onCluster}>
-                    {this.state.clustered.map(({coordinate,points},idx)=>{
-                        return (
-                            <AMapMarker coordinate={coordinate} key={idx}>
-                                <View style={styles.cluster}>
-                                    <Text style={styles.clusterText}>
-                                        {points.length}
-                                    </Text>
-                                </View>
-                            </AMapMarker>
-                        )
-                    })}
+                    {/*{this.state.clustered.map(({coordinate,points},idx)=>{*/}
+                        {/*return (*/}
+                            {/*<AMapMarker coordinate={coordinate} key={idx}>*/}
+                                {/*<View style={styles.cluster}>*/}
+                                    {/*<Text style={styles.clusterText}>*/}
+                                        {/*{points.length}*/}
+                                    {/*</Text>*/}
+                                {/*</View>*/}
+                            {/*</AMapMarker>*/}
+                        {/*)*/}
+                    {/*})}*/}
 
                     {/*<AMapMarker coordinate={{latitude: 30.2763386988, longitude: 120.1232028758}}*/}
                                 {/*title="Title"*/}
@@ -55,31 +56,28 @@ export default class App extends Component {
 
                     {/*</AMapMarker>*/}
 
-                    {/*<AMapMarker coordinate={{latitude: 30.2773386988, longitude: 120.1242028758}}*/}
-                                {/*title="Title"*/}
-                                {/*description="Snippet"*/}
-                                {/*pinColor="red"*/}
-                                {/*calloutEnabled={true}>*/}
-                        {/*<AMapCallout>*/}
-                            {/*<View style={{flexDirection: 'row'}}>*/}
-                                {/*<View>*/}
-                                    {/*<Text>*/}
-                                        {/*ooooooooo*/}
-                                    {/*</Text>*/}
-                                    {/*<Text style={{color: 'red', fontSize: 11}}>*/}
-                                        {/*omn12*/}
-                                    {/*</Text>*/}
-                                {/*</View>*/}
-                                {/*<TouchableOpacity onPress={() => Alert.alert('call out clicked')}>*/}
-                                    {/*<View style={{width: 32, backgroundColor: 'blue', flex: 1}}>*/}
+                    <AMapMarker coordinate={{latitude: 30.2773386988, longitude: 120.1242028758}}
+                                title="Title"
+                                description="Snippet"
+                                pinColor="red"
+                                onPress={()=>console.log('marker on press')}
+                                onSelectChange={selected=>console.log('on selected->',selected)}
+                                onCalloutPress={()=>console.log('onCallout press')}
+                                calloutEnabled={true}>
+                        <Text>
+                            ooooooooo
+                        </Text>
+                        <Text style={{color: 'red', fontSize: 11}}>
+                            omn12
+                        </Text>
+                        <AMapCallout>
+                            <CustomCallout>
+                                <Text>This is a custom callout bubble view</Text>
+                            </CustomCallout>
 
-                                    {/*</View>*/}
-                                {/*</TouchableOpacity>*/}
-                            {/*</View>*/}
+                        </AMapCallout>
 
-                        {/*</AMapCallout>*/}
-
-                    {/*</AMapMarker>*/}
+                    </AMapMarker>
 
                     {/*<AMapPolyline coordinates={[*/}
                         {/*{latitude: 30.2773386988, longitude: 120.1242028758},*/}

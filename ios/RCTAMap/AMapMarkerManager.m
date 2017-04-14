@@ -33,15 +33,18 @@ RCT_CUSTOM_VIEW_PROPERTY(pinColor, UIColor, AMapMarker){
 }
 RCT_REMAP_VIEW_PROPERTY(image, imageSrc, NSString)
 RCT_EXPORT_VIEW_PROPERTY(centerOffset, CGPoint)
+RCT_EXPORT_VIEW_PROPERTY(calloutOffset, CGPoint)
 RCT_EXPORT_VIEW_PROPERTY(zIndex, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(calloutEnabled, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(onSelect, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onPress, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCalloutPress, RCTDirectEventBlock)
 
 
 -(UIView*)view{
   AMapMarker *view = [[AMapMarker alloc]initWithAnnotation:nil reuseIdentifier:nil];
-  view.annotation = view;
+//  view.annotation = view;
+    [view addTapGestureRecognizer];
   view.bridge = self.bridge;
   
   return view;

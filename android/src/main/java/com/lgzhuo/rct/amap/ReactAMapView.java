@@ -96,6 +96,13 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
         }
     }
 
+    public void setZoomControlsEnabled(boolean shows) {
+        AMap map = getMap();
+        if (map != null) {
+            map.getUiSettings().setZoomControlsEnabled(shows);
+        }
+    }
+
     public void setClusterPoints(List<ClusterPoint> points) {
         mClusterComputer.setPoints(points);
     }

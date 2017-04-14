@@ -32,6 +32,12 @@ export default class AMap extends Component {
          */
         showsScale: PropTypes.bool,
         /**
+         * 显示缩放的按钮
+         *
+         * @platform android
+         */
+        showsZoomControl: PropTypes.bool,
+        /**
          * 聚合点数据
          */
         clusterData: PropTypes.arrayOf(PropTypes.shape({
@@ -52,6 +58,7 @@ export default class AMap extends Component {
     static defaultProps = {
         showsScale: false,
         showsCompass: false,
+        showsZoomControl: false,
         clusterSize: 20
     };
 

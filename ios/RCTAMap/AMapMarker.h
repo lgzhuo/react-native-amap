@@ -28,9 +28,10 @@
 @property (nonatomic, copy) NSString *imageSrc;
 @property (nonatomic, assign) BOOL calloutEnabled;
 @property (nonatomic, copy) RCTDirectEventBlock onSelect;
+@property (nonatomic, copy) RCTDirectEventBlock onPress;
 @property (nonatomic, copy) RCTDirectEventBlock onCalloutPress;
 
--(void)showCallout:(BOOL) animate;
--(void)dismissCallout:(BOOL) animate;
-
+- (void)showCallout:(BOOL) animate;
+- (void)dismissCallout:(BOOL) animate;
+- (void)addTapGestureRecognizer;
 @end

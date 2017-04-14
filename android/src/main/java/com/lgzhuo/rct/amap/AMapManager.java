@@ -70,6 +70,11 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
         view.setScaleControlsEnabled(shows);
     }
 
+    @ReactProp(name = "showsZoomControl")
+    public void setShowsZoomControl(ReactAMapView view, boolean shows) {
+        view.setZoomControlsEnabled(shows);
+    }
+
     @ReactProp(name = "clusterData")
     public void setClusterData(ReactAMapView view, ReadableArray array) {
         if (array != null) {

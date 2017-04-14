@@ -3,8 +3,6 @@ package com.lgzhuo.rct.amap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.support.annotation.FloatRange;
@@ -38,11 +36,7 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-import com.facebook.react.views.art.ARTSurfaceView;
-import com.facebook.react.views.art.ARTSurfaceViewShadowNode;
-import com.facebook.react.views.art.ARTVirtualNode;
 
 import javax.annotation.Nullable;
 

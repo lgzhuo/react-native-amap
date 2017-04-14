@@ -27,15 +27,18 @@
   if ([self shouldUsePinView]) {
     if (!_pinView) {
       _pinView = [[MAPinAnnotationView alloc] initWithAnnotation:self reuseIdentifier:nil];
+        [self addGestureRecognizerToView:_pinView];
       _pinView.annotation = self;
     }
     _pinView.draggable = self.draggable;
-    _pinView.centerOffset = self.centerOffset;
     _pinView.zIndex = self.zIndex;
+      
+    _pinView.centerOffset = self.centerOffset;
     _pinView.pinColor = self.pinColor;
     _pinView.canShowCallout = self.canShowCallout;
     return _pinView;
   } else {
+    self.zIndex = self.zIndex;
     return self;
   }
 }
@@ -46,10 +49,12 @@
 }
 
 -(void)showCallout:(BOOL)animate{
-  MAAnnotationView *annotationView = self.annotationView;
-  if (!self.calloutEnabled || (!self.title && !self.subtitle && !self.customCallout)) {
-    return;
-  }
+    [self setSelected:YES animated:NO];
+    MAAnnotationView *annotationView = self.annotationView;
+    if (self.onSelect) self.onSelect(@{@"selected":@(YES)});
+    if (!self.calloutEnabled || (!self.title && !self.subtitle && !self.customCallout)) {
+        return;
+    }
   [self fillCallout:self.mapView.callout];
   [self.mapView.callout presentCalloutFromRect:annotationView.bounds
                                         inView:annotationView
@@ -59,10 +64,16 @@
 
 -(void)dismissCallout:(BOOL)animate{
   [self.mapView.callout dismissCalloutAnimated:animate];
+    [self setSelected:NO animated:NO];
+    if (self.onSelect) self.onSelect(@{@"selected":@(NO)});
 }
 
 -(void)fillCallout:(SMCalloutView*)callout{
-  callout.calloutOffset = self.calloutOffset;
+    if ([self shouldUsePinView] && !_hasSetCalloutOffset) {
+        callout.calloutOffset = CGPointMake(-8,0);
+    } else {
+        callout.calloutOffset = self.calloutOffset;
+    }
   if (self.customCallout) {
     callout.title = nil;
     callout.subtitle = nil;
@@ -71,31 +82,74 @@
     callout.title = self.title;
     callout.subtitle = self.subtitle;
     callout.contentView = nil;
-  }
-  
-}
-
--(void)setSelected:(BOOL)selected animated:(BOOL)animated{
-  if (self.selected==selected) {
-    return;
-  }
-  [super setSelected:selected animated:animated];
-  if (self.onSelect) {
-    self.onSelect(@{@"selected":@(selected)});
+    callout.backgroundView = [SMCalloutMaskedBackgroundView new];
   }
 }
 
--(void)setSelected:(BOOL)selected{
-  if (self.selected==selected) {
-    return;
-  }
-  [super setSelected:selected];
-  if (self.onSelect) {
-    self.onSelect(@{@"selected":@(selected)});
-  }
+//-(void)setSelected:(BOOL)selected animated:(BOOL)animated{
+//  if (self.selected==selected) {
+//    return;
+//  }
+//  [super setSelected:selected animated:animated];
+//    if (self.onPress) {
+//        self.onPress(nil);
+//    }
+//  if (self.onSelect) {
+//    self.onSelect(@{@"selected":@(selected)});
+//  }
+//}
+//
+//-(void)setSelected:(BOOL)selected{
+//  if (self.selected==selected) {
+//    return;
+//  }
+//  [super setSelected:selected];
+//  if (self.onSelect) {
+//    self.onSelect(@{@"selected":@(selected)});
+//  }
+//}
+
+#pragma mark - Tap Gesture & Events.
+
+- (void)addTapGestureRecognizer {
+    [self addGestureRecognizerToView:nil];
+}
+
+- (void)addGestureRecognizerToView:(UIView *)view {
+    if (!view) {
+        view = self;
+    }
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_handleTap:)];
+    // setting this to NO allows the parent MapView to continue receiving marker selection events
+    tapGestureRecognizer.cancelsTouchesInView = NO;
+    [view addGestureRecognizer:tapGestureRecognizer];
+}
+
+- (void)_handleTap:(UITapGestureRecognizer *)recognizer {
+    AMapMarker *marker = self;
+    if (!marker) return;
+    
+    if (marker.selected) {
+        CGPoint touchPoint = [recognizer locationInView:marker.mapView.callout];
+        if ([marker.mapView.callout hitTest:touchPoint withEvent:nil]) {
+            
+            if (marker.onCalloutPress) marker.onCalloutPress(nil);
+            return;
+        }
+    }
+    
+    if (marker.onPress) marker.onPress(nil);
+    
+    [marker.mapView selectAnnotation:marker animated:NO];
 }
 
 #pragma mark property setter
+
+- (void)setCalloutOffset:(CGPoint)calloutOffset
+{
+    _hasSetCalloutOffset = YES;
+    [super setCalloutOffset:calloutOffset];
+}
 
 - (void)setImageSrc:(NSString *)imageSrc
 {
@@ -159,7 +213,7 @@
 - (void)reactSetFrame:(CGRect)frame
 {
   // Make sure we use the image size when available
-  CGSize size = self.image ? CGSizeMake(MAX(self.image.size.width, frame.size.width), MAX(self.image.size.height, frame.size.height)) : frame.size;
+  CGSize size = self.image ? self.image.size : frame.size;
   CGRect bounds = {CGPointZero, size};
   
   // The MapView is basically in charge of figuring out the center position of the marker view. If the view changed in
