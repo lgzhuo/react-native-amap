@@ -3,6 +3,7 @@ package com.lgzhuo.rct.amap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.support.annotation.FloatRange;
@@ -11,6 +12,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.model.BitmapDescriptor;
@@ -44,7 +46,7 @@ import javax.annotation.Nullable;
  * Created by lgzhuo on 2017/3/9.
  */
 
-public class AMapMarker extends AMapFeature {
+public class AMapMarker extends AMapFeature implements View.OnClickListener {
 
     private Marker marker;
     private MarkerOptions markerOptions = new MarkerOptions();
@@ -251,7 +253,10 @@ public class AMapMarker extends AMapFeature {
 
     public void setcallout(AMapCallout callout) {
         if (this.callout != callout) {
-            this.wrappedCallout = null;
+            if (this.wrappedCallout != null) {
+                this.wrappedCallout.setOnClickListener(null);
+                this.wrappedCallout = null;
+            }
         }
         this.callout = callout;
     }
@@ -330,17 +335,35 @@ public class AMapMarker extends AMapFeature {
     }
 
     public View getInfoWindow() {
-        return null;
-    }
-
-    public View getInfoContents() {
         if (this.callout == null) return null;
 
         if (this.wrappedCallout == null) {
             this.wrapCalloutView();
         }
 
+        if (this.wrappedCallout != null) {
+            if (this.callout.isTooltip()) {
+                this.wrappedCallout.setBackgroundColor(Color.TRANSPARENT);
+            } else {
+                this.wrappedCallout.setBackground(null);
+            }
+        }
         return this.wrappedCallout;
+    }
+
+    public View getInfoContents() {
+//        if (this.callout == null) return null;
+//
+//        if (this.wrappedCallout == null) {
+//            this.wrapCalloutView();
+//        }
+//
+//        if (this.callout.isTooltip()) {
+//            return null;
+//        } else {
+//            return this.wrappedCallout;
+//        }
+        return null;
     }
 
     private void wrapCalloutView() {
@@ -349,15 +372,15 @@ public class AMapMarker extends AMapFeature {
         }
 
         FrameLayout FL = new FrameLayout(getContext());
-        FL.setLayoutParams(new ViewGroup.LayoutParams(this.callout.width, this.callout.height));
+        FL.setLayoutParams(new ViewGroup.LayoutParams(
+                this.callout.width,
+                this.callout.height
+        ));
+
         FL.addView(this.callout);
+        FL.setOnClickListener(this);
 
-        FrameLayout FL2 = new FrameLayout(getContext());
-        FL2.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        FL2.setBackgroundResource(R.drawable.infowindow_bg);
-        FL2.addView(FL);
-
-        this.wrappedCallout = FL2;
+        this.wrappedCallout = FL;
     }
 
     private int getDrawableResourceByName(String name) {
@@ -383,5 +406,12 @@ public class AMapMarker extends AMapFeature {
 
     public void pushOnCalloutPressEvent() {
         pushEvent("onCalloutPress", null);
+    }
+
+    /*  View.OnClickListener */
+
+    @Override
+    public void onClick(View view) {
+        pushOnCalloutPressEvent();
     }
 }

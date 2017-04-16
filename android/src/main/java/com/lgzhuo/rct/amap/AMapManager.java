@@ -95,6 +95,11 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
         view.setClusterSize(clusterSize);
     }
 
+    @ReactProp(name = "moveOnMarkerPress", defaultBoolean = true)
+    public void setMoveOnMarkerPress(ReactAMapView view, boolean moveOnMarkerPress) {
+        view.setMoveOnMarkerPress(moveOnMarkerPress);
+    }
+
     @Override
     @Nullable
     public Map getExportedCustomDirectEventTypeConstants() {
@@ -111,7 +116,7 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
                 "fitAnnotations", FIT_ANNOTATIONS,
                 "fitRegion", FIT_REGION,
                 "fitCoordinates", FIT_COORDINATES
-                );
+        );
     }
 
     @Override

@@ -1,11 +1,15 @@
 /**
- * Created by yunrui on 2017/3/14.
+ * Created by lgzhuo on 2017/3/14.
  */
-import React, {Component} from 'react'
+import React, {Component, PropTypes} from 'react'
 import {requireNativeComponent, StyleSheet} from 'react-native'
 const NativeAMapCallout = requireNativeComponent('AMapCallout', AMapCallout);
 
 export default class AMapCallout extends Component {
+    static propTypes = {
+        tooltip: PropTypes.bool
+    };
+
     render() {
         let {style, ...props} = this.props;
         return (

@@ -3,6 +3,7 @@ package com.lgzhuo.rct.amap;
 import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
+import com.facebook.react.uimanager.annotations.ReactProp;
 
 import java.util.Map;
 
@@ -21,6 +22,11 @@ public class AMapCalloutManager extends ViewGroupManager<AMapCallout> {
     @Override
     protected AMapCallout createViewInstance(ThemedReactContext reactContext) {
         return new AMapCallout(reactContext);
+    }
+
+    @ReactProp(name = "tooltip", defaultBoolean = false)
+    public void setTooltip(AMapCallout view, boolean tooltip) {
+        view.setTooltip(tooltip);
     }
 
     @Override

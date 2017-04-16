@@ -127,6 +127,11 @@ extern NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView;
 - (void)presentCalloutFromRect:(CGRect)rect inLayer:(CALayer *)layer constrainedToLayer:(CALayer *)constrainedLayer animated:(BOOL)animated;
 
 /**
+ 同- (void)presentCalloutFromRect:(CGRect)rect inView:(UIView *)view constrainedToView:(UIView *)constrainedView animated:(BOOL)animated;
+callout保持中间点和Anchor一至。当太靠近左右两边时不会有偏移
+ */
+- (void)presentCalloutForceCenterFromRect:(CGRect)rect inView:(UIView *)view constrainedToView:(UIView *)constrainedView animated:(BOOL)animated;
+/**
  Dismiss the callout view
  
  @param animated @c BOOL if dismissal should be animated

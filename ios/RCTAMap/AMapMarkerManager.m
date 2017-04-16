@@ -37,7 +37,7 @@ RCT_EXPORT_VIEW_PROPERTY(calloutOffset, CGPoint)
 RCT_EXPORT_VIEW_PROPERTY(zIndex, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(calloutEnabled, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(onSelect, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onPress, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCalloutPress, RCTDirectEventBlock)
 
 

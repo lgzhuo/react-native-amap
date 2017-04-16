@@ -1,5 +1,9 @@
 package com.lgzhuo.rct.amap;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.amap.api.navi.AMapNavi;
 import com.amap.api.navi.AMapNaviListener;
 import com.amap.api.navi.model.AMapLaneInfo;
@@ -22,6 +26,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.lgzhuo.rct.amap.helper.ReadableMapWrapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,12 +39,14 @@ import java.util.Map;
  * Created by lgzhuo on 2017/3/16.
  */
 
-class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener {
+class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener, AMapLocationListener {
 
     private static final String REACT_NAME = "AMapService";
 
     private AMapNavi mNavi;
     private Promise mNaviRoutePromise;
+
+    private AMapLocationClient mLocationClient;
 
     AMapService(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -48,6 +56,8 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
     public String getName() {
         return REACT_NAME;
     }
+
+    /* calculateNaviDriveRoute */
 
     @ReactMethod
     public void calculateNaviDriveRoute(ReadableMap props, Promise promise) {
@@ -113,6 +123,69 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
             }
         }
         return mNavi;
+    }
+
+    /* getCurrentLocation */
+
+    @ReactMethod
+    public void getCurrentLocation(ReadableMap props, final Promise promise) {
+        props = ReadableMapWrapper.wrap(props);
+        AMapLocationClientOption option = new AMapLocationClientOption();
+        option.setOnceLocationLatest(true);
+        option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        option.setMockEnable(true);//
+        option.setNeedAddress(true);
+        final AMapLocationClient client = new AMapLocationClient(getReactApplicationContext());
+        client.setLocationListener(new AMapLocationListener() {
+            @Override
+            public void onLocationChanged(AMapLocation aMapLocation) {
+                if (aMapLocation.getErrorCode() != AMapLocation.LOCATION_SUCCESS) {
+                    promise.reject("" + aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
+                } else {
+                    WritableMap result = Arguments.createMap();
+                    result.putDouble("accuracy", aMapLocation.getAccuracy());
+                    result.putString("adCode", aMapLocation.getAdCode());
+                    result.putString("address", aMapLocation.getAddress());
+                    result.putDouble("altitude", aMapLocation.getAltitude());
+                    result.putString("aoiName", aMapLocation.getAoiName());
+                    result.putDouble("bearing", aMapLocation.getBearing());
+                    result.putString("buildingId", aMapLocation.getBuildingId());
+                    result.putString("city", aMapLocation.getCity());
+                    result.putString("cityCode", aMapLocation.getCityCode());
+                    result.putString("country", aMapLocation.getCountry());
+                    result.putString("district", aMapLocation.getDistrict());
+                    result.putString("floor", aMapLocation.getFloor());
+                    result.putDouble("longitude", aMapLocation.getLongitude());
+                    result.putDouble("latitude", aMapLocation.getLatitude());
+                    result.putInt("gpsAccuracyStatus", aMapLocation.getGpsAccuracyStatus());
+                    result.putString("locationDetail", aMapLocation.getLocationDetail());
+                    result.putInt("locationType", aMapLocation.getLocationType());
+                    result.putString("poiName", aMapLocation.getPoiName());
+                    result.putString("provider", aMapLocation.getProvider());
+                    result.putString("province", aMapLocation.getProvince());
+                    result.putDouble("speed", aMapLocation.getSpeed());
+                    result.putString("street", aMapLocation.getStreet());
+                    result.putString("streetNum", aMapLocation.getStreetNum());
+                    promise.resolve(result);
+                }
+                client.stopLocation();
+                client.onDestroy();
+            }
+        });
+        client.setLocationOption(option);
+        client.startLocation();
+    }
+
+    private AMapLocationClient getLocationClient() {
+        if (mLocationClient == null) {
+            synchronized (this) {
+                if (mLocationClient == null) {
+                    mLocationClient = new AMapLocationClient(getReactApplicationContext());
+                    mLocationClient.setLocationListener(this);
+                }
+            }
+        }
+        return mLocationClient;
     }
 
     /* AMapNaviListener */
@@ -276,6 +349,13 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
 
     @Override
     public void updateAimlessModeCongestionInfo(AimLessModeCongestionInfo aimLessModeCongestionInfo) {
+
+    }
+
+    /* AMapLocationListener */
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation) {
 
     }
 }

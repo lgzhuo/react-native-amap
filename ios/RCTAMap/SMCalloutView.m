@@ -255,16 +255,20 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     return CGSizeMake(nudgeLeft ? nudgeLeft : nudgeRight, nudgeTop ? nudgeTop : nudgeBottom);
 }
 
+- (void)presentCalloutForceCenterFromRect:(CGRect)rect inView:(UIView *)view constrainedToView:(UIView *)constrainedView animated:(BOOL)animated {
+    [self presentCalloutFromRect:rect inLayer:view.layer ofView:view constrainedToLayer:constrainedView.layer animated:animated forceCenter:YES];
+}
+
 - (void)presentCalloutFromRect:(CGRect)rect inView:(UIView *)view constrainedToView:(UIView *)constrainedView animated:(BOOL)animated {
-    [self presentCalloutFromRect:rect inLayer:view.layer ofView:view constrainedToLayer:constrainedView.layer animated:animated];
+    [self presentCalloutFromRect:rect inLayer:view.layer ofView:view constrainedToLayer:constrainedView.layer animated:animated forceCenter:NO];
 }
 
 - (void)presentCalloutFromRect:(CGRect)rect inLayer:(CALayer *)layer constrainedToLayer:(CALayer *)constrainedLayer animated:(BOOL)animated {
-    [self presentCalloutFromRect:rect inLayer:layer ofView:nil constrainedToLayer:constrainedLayer animated:animated];
+    [self presentCalloutFromRect:rect inLayer:layer ofView:nil constrainedToLayer:constrainedLayer animated:animated forceCenter:NO];
 }
 
 // this private method handles both CALayer and UIView parents depending on what's passed.
-- (void)presentCalloutFromRect:(CGRect)rect inLayer:(CALayer *)layer ofView:(UIView *)view constrainedToLayer:(CALayer *)constrainedLayer animated:(BOOL)animated {
+- (void)presentCalloutFromRect:(CGRect)rect inLayer:(CALayer *)layer ofView:(UIView *)view constrainedToLayer:(CALayer *)constrainedLayer animated:(BOOL)animated forceCenter:(BOOL)forceCenter {
 
     // Sanity check: dismiss this callout immediately if it's displayed somewhere
     if (self.layer.superlayer) [self dismissCalloutAnimated:NO];
@@ -317,12 +321,14 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     // we prefer to sit centered directly above our anchor
     CGFloat calloutX = roundf(anchorX - self.frameWidth / 2);
     
-    // but not if it's going to get too close to the edge of our constraints
-    if (calloutX < constrainedRect.origin.x)
-        calloutX = constrainedRect.origin.x;
-
-    if (calloutX > constrainedRect.origin.x+constrainedRect.size.width-self.frameWidth)
-        calloutX = constrainedRect.origin.x+constrainedRect.size.width-self.frameWidth;
+    if (!forceCenter) {
+        // but not if it's going to get too close to the edge of our constraints
+        if (calloutX < constrainedRect.origin.x)
+            calloutX = constrainedRect.origin.x;
+        
+        if (calloutX > constrainedRect.origin.x+constrainedRect.size.width-self.frameWidth)
+            calloutX = constrainedRect.origin.x+constrainedRect.size.width-self.frameWidth;
+    }
     
     // what's the farthest to the left and right that we could point to, given our background image constraints?
     CGFloat minPointX = calloutX + self.backgroundView.anchorMargin;

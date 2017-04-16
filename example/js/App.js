@@ -57,23 +57,18 @@ export default class App extends Component {
                     {/*</AMapMarker>*/}
 
                     <AMapMarker coordinate={{latitude: 30.2773386988, longitude: 120.1242028758}}
-                                title="Title"
-                                description="Snippet"
-                                pinColor="red"
-                                onPress={()=>console.log('marker on press')}
-                                onSelectChange={selected=>console.log('on selected->',selected)}
-                                onCalloutPress={()=>console.log('onCallout press')}
+                                title="fhe"
                                 calloutEnabled={true}>
                         <Text>
-                            ooooooooo
+                            ioi   11
                         </Text>
                         <Text style={{color: 'red', fontSize: 11}}>
                             omn12
                         </Text>
-                        <AMapCallout>
-                            <CustomCallout>
-                                <Text>This is a custom callout bubble view</Text>
-                            </CustomCallout>
+                        <AMapCallout tooltip={true} style={{backgroundColor:'red'}}>
+                            <Text>
+                                tesssssssssssssiiiiieiiiejfienfiefiejfefmoemfoenfonofsnofns
+                            </Text>
 
                         </AMapCallout>
 

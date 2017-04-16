@@ -12,10 +12,17 @@ public class AMapCallout extends ReactViewGroup {
 
     int width;
     int height;
+    private boolean tooltip = false;
 
     public AMapCallout(Context context) {
         super(context);
     }
 
+    public boolean isTooltip() {
+        return tooltip;
+    }
 
+    public void setTooltip(boolean tooltip) {
+        this.tooltip = tooltip;
+    }
 }

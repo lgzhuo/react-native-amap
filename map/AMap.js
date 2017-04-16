@@ -1,5 +1,5 @@
 /**
- * Created by yunrui on 2017/3/7.
+ * Created by lgzhuo on 2017/3/7.
  */
 import React, {Component, PropTypes} from 'react'
 import {requireNativeComponent, View, StyleSheet, UIManager, findNodeHandle, PixelRatio} from 'react-native'
@@ -53,13 +53,21 @@ export default class AMap extends Component {
          * 聚合点计算完成回调
          */
         onCluster: PropTypes.func,
+        /**
+         * 在marker被点击时是否移动地图将marker居中
+         * Default value is `true`
+         *
+         * @platform android
+         */
+        moveOnMarkerPress: PropTypes.bool,
     };
 
     static defaultProps = {
         showsScale: false,
         showsCompass: false,
         showsZoomControl: false,
-        clusterSize: 20
+        clusterSize: 20,
+        moveOnMarkerPress: true
     };
 
     _onCluster = ({nativeEvent: {clustered}}) => {

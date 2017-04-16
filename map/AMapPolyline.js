@@ -1,5 +1,5 @@
 /**
- * Created by yunrui on 2017/3/16.
+ * Created by lgzhuo on 2017/3/16.
  */
 import React, {Component, PropTypes} from 'react'
 import {requireNativeComponent} from 'react-native'

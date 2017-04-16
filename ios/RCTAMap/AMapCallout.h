@@ -9,5 +9,5 @@
 #import <React/RCTView.h>
 
 @interface AMapCallout : RCTView
-
+@property (nonatomic, assign) BOOL tooltip;
 @end

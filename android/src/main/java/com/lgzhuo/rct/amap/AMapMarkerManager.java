@@ -10,6 +10,7 @@ import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.lgzhuo.rct.amap.helper.ReadableMapWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,10 +86,11 @@ class AMapMarkerManager extends ViewGroupManager<AMapMarker> {
         view.setGps(gps);
     }
 
-    @ReactProp(name = "infoWindowOffset")
-    public void setInfoWindowOffset(AMapMarker view, ReadableMap map) {
-        int offsetX = map != null ? map.getInt("offsetX") : 0;
-        int offsetY = map != null ? map.getInt("offsetY") : 0;
+    @ReactProp(name = "calloutOffset")
+    public void setCalloutOffset(AMapMarker view, ReadableMap map) {
+        map = ReadableMapWrapper.wrap(map);
+        int offsetX = map.getInt("x");
+        int offsetY = map.getInt("y");
         view.setInfoWindowOffset(offsetX, offsetY);
     }
 

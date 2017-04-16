@@ -1,5 +1,5 @@
 /**
- * Created by yunrui on 2017/3/16.
+ * Created by lgzhuo on 2017/3/16.
  */
 import {NativeModules, Alert} from 'react-native'
 const AMS = NativeModules.AMapService;
@@ -64,9 +64,15 @@ export type NaviRoute = {
 
 }
 
+export type LocationProps = {}
+
 class AMapService {
     static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
         return await AMS.calculateNaviDriveRoute(props)
+    }
+
+    static async getCurrentPosition(props: LocationProps): Promise<LatLng> {
+        return await AMS.getCurrentPosition(props)
     }
 }
 

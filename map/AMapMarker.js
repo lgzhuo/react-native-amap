@@ -1,5 +1,5 @@
 /**
- * Created by yunrui on 2017/3/9.
+ * Created by lgzhuo on 2017/3/9.
  */
 import React, {Component, PropTypes} from 'react'
 import {requireNativeComponent, StyleSheet} from 'react-native'
@@ -60,13 +60,13 @@ export default class AMapMarker extends Component {
          * Marker覆盖物的InfoWindow相对Marker的偏移。
          * 坐标系原点为marker的中上点，InfoWindow相对此原点的像素偏移，向左和向上上为负，向右和向下为正。InfoWindow的初始位置为marker上边线与InfoWindow下边线重合，并且两者的中线在一条线上。
          * 参数:
-         * offsetX - callOut相对原点的横向像素偏移量，单位：像素。
-         * offsetY - callOut相对原点的纵向像素偏移量，单位：像素。
+         * x - callOut相对原点的横向像素偏移量，单位：像素。
+         * y - callOut相对原点的纵向像素偏移量，单位：像素。
          *
          */
-        callOutOffset: PropTypes.shape({
-            offsetX: PropTypes.number,
-            offsetY: PropTypes.number,
+        calloutOffset: PropTypes.shape({
+            x: PropTypes.number,
+            y: PropTypes.number,
         }),
         /**
          * Marker 覆盖物的文字片段。

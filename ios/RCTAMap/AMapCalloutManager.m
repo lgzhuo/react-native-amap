@@ -16,4 +16,6 @@ RCT_EXPORT_MODULE(AMapCallout)
 -(UIView *)view{
   return [[AMapCallout alloc]init];
 }
+
+RCT_EXPORT_VIEW_PROPERTY(tooltip, BOOL)
 @end

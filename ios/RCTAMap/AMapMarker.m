@@ -13,7 +13,7 @@
 #import "AMapCallout.h"
 
 @interface AMapMarker()
-@property(nonatomic,strong) UIView *customCallout;
+@property(nonatomic,strong) AMapCallout *customCallout;
 @end
 
 @implementation AMapMarker{
@@ -56,10 +56,14 @@
         return;
     }
   [self fillCallout:self.mapView.callout];
-  [self.mapView.callout presentCalloutFromRect:annotationView.bounds
-                                        inView:annotationView
-                             constrainedToView:self.mapView
-                                      animated:animate];
+    if ([self.mapView.callout.backgroundView isKindOfClass:[EmptyCalloutBackgroundView class]]) {
+        [self.mapView.callout presentCalloutForceCenterFromRect:annotationView.bounds inView:annotationView constrainedToView:self.mapView animated:animate];
+    }else{
+        [self.mapView.callout presentCalloutFromRect:annotationView.bounds
+                                              inView:annotationView
+                                   constrainedToView:self.mapView
+                                            animated:animate];
+    }
 }
 
 -(void)dismissCallout:(BOOL)animate{
@@ -77,6 +81,15 @@
   if (self.customCallout) {
     callout.title = nil;
     callout.subtitle = nil;
+      if (self.customCallout.tooltip) {
+          // if tooltip is true, then the user wants their react view to be the "tooltip" as wwell, so we set
+          // the background view to something empty/transparent
+          callout.backgroundView = [EmptyCalloutBackgroundView new];
+      } else {
+          // the default tooltip look is wanted, and the user is just filling the content with their react subviews.
+          // as a result, we use the default "masked" background view.
+          callout.backgroundView = [SMCalloutMaskedBackgroundView new];
+      }
     callout.contentView = self.customCallout;
   } else {
     callout.title = self.title;
@@ -254,5 +267,9 @@
     [super removeReactSubview:subview];
   }
 }
+
+@end
+
+@implementation EmptyCalloutBackgroundView
 
 @end

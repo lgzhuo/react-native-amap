@@ -81,12 +81,6 @@
   return _reactSubviews;
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
-- (void)didUpdateReactSubviews
-{
-}
-
 #pragma mark SMCalloutViewDelegate
 
 - (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset {

@@ -44,6 +44,7 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     private Map<Marker, AMapMarker> mMarkerMap = new WeakHashMap<>();
     private Map<Polyline, AMapPolyline> mPolylineMap = new WeakHashMap<>();
     private ClusterComputer mClusterComputer = new ClusterComputer();
+    private boolean mMoveOnMarkerPress;
 
     public ReactAMapView(Context context) {
         super(context);
@@ -109,6 +110,10 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
 
     public void setClusterSize(float size) {
         mClusterComputer.setSize(size);
+    }
+
+    public void setMoveOnMarkerPress(boolean moveOnPress) {
+        this.mMoveOnMarkerPress = moveOnPress;
     }
 
     public void onDrop() {
@@ -234,7 +239,12 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
         if (aMarker != null) {
             aMarker.pushOnPressEvent();
         }
-        return false;
+        if (mMoveOnMarkerPress) {
+            return false;
+        } else {
+            marker.showInfoWindow();
+            return true;
+        }
     }
 
     /* AMap.InfoWindowAdapter */
