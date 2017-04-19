@@ -66,12 +66,34 @@ export type NaviRoute = {
 
 export type LocationProps = {}
 
+export type GeoLocation = {
+    latitude: number,
+    longitude: number,
+    accuracy: number,
+    adCode: string,
+    address: string,
+    altitude: number,
+    aoiName: string,
+    bearing: number,
+    buildingId: string,
+    city: string,
+    cityCode: string,
+    country: string,
+    district: string,
+    floor: number,
+    poiName: string,
+    province: string,
+    speed: number,
+    street: string,
+    streetNum: string
+}
+
 class AMapService {
     static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
         return await AMS.calculateNaviDriveRoute(props)
     }
 
-    static async getCurrentPosition(props: LocationProps): Promise<LatLng> {
+    static async getCurrentPosition(props: LocationProps): Promise<GeoLocation> {
         return await AMS.getCurrentPosition(props)
     }
 }

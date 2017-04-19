@@ -19,6 +19,7 @@ target 'RCTAMapExample' do
 
   pod 'AMap3DMap-NO-IDFA', '4.6.0'
   pod 'AMapNavi-NO-IDFA'
+  pod 'AMapLocation-NO-IDFA'
   pod 'react-native-amap', path: '../../'
 
 end

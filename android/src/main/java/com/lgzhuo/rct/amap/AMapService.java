@@ -47,6 +47,7 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
     private Promise mNaviRoutePromise;
 
     private AMapLocationClient mLocationClient;
+    private Promise mLocationPromise;
 
     AMapService(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -128,52 +129,21 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
     /* getCurrentLocation */
 
     @ReactMethod
-    public void getCurrentLocation(ReadableMap props, final Promise promise) {
-        props = ReadableMapWrapper.wrap(props);
-        AMapLocationClientOption option = new AMapLocationClientOption();
-        option.setOnceLocationLatest(true);
-        option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        option.setMockEnable(true);//
-        option.setNeedAddress(true);
-        final AMapLocationClient client = new AMapLocationClient(getReactApplicationContext());
-        client.setLocationListener(new AMapLocationListener() {
-            @Override
-            public void onLocationChanged(AMapLocation aMapLocation) {
-                if (aMapLocation.getErrorCode() != AMapLocation.LOCATION_SUCCESS) {
-                    promise.reject("" + aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
-                } else {
-                    WritableMap result = Arguments.createMap();
-                    result.putDouble("accuracy", aMapLocation.getAccuracy());
-                    result.putString("adCode", aMapLocation.getAdCode());
-                    result.putString("address", aMapLocation.getAddress());
-                    result.putDouble("altitude", aMapLocation.getAltitude());
-                    result.putString("aoiName", aMapLocation.getAoiName());
-                    result.putDouble("bearing", aMapLocation.getBearing());
-                    result.putString("buildingId", aMapLocation.getBuildingId());
-                    result.putString("city", aMapLocation.getCity());
-                    result.putString("cityCode", aMapLocation.getCityCode());
-                    result.putString("country", aMapLocation.getCountry());
-                    result.putString("district", aMapLocation.getDistrict());
-                    result.putString("floor", aMapLocation.getFloor());
-                    result.putDouble("longitude", aMapLocation.getLongitude());
-                    result.putDouble("latitude", aMapLocation.getLatitude());
-                    result.putInt("gpsAccuracyStatus", aMapLocation.getGpsAccuracyStatus());
-                    result.putString("locationDetail", aMapLocation.getLocationDetail());
-                    result.putInt("locationType", aMapLocation.getLocationType());
-                    result.putString("poiName", aMapLocation.getPoiName());
-                    result.putString("provider", aMapLocation.getProvider());
-                    result.putString("province", aMapLocation.getProvince());
-                    result.putDouble("speed", aMapLocation.getSpeed());
-                    result.putString("street", aMapLocation.getStreet());
-                    result.putString("streetNum", aMapLocation.getStreetNum());
-                    promise.resolve(result);
-                }
-                client.stopLocation();
-                client.onDestroy();
-            }
-        });
-        client.setLocationOption(option);
-        client.startLocation();
+    public void getCurrentPosition(ReadableMap props, final Promise promise) {
+        if (mLocationPromise!=null){
+            promise.reject("-1", "上次定位未结束");
+        }else{
+            mLocationPromise = promise;
+            props = ReadableMapWrapper.wrap(props);
+            AMapLocationClientOption option = new AMapLocationClientOption();
+            option.setOnceLocationLatest(true);
+            option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+            option.setMockEnable(true);//
+            option.setNeedAddress(true);
+            AMapLocationClient client = getLocationClient();
+            client.setLocationOption(option);
+            client.startLocation();
+        }
     }
 
     private AMapLocationClient getLocationClient() {
@@ -356,6 +326,37 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-
+        if (mLocationPromise!=null){
+            if (aMapLocation.getErrorCode() != AMapLocation.LOCATION_SUCCESS) {
+                mLocationPromise.reject("" + aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
+            } else {
+                WritableMap result = Arguments.createMap();
+                result.putDouble("accuracy", aMapLocation.getAccuracy());
+                result.putString("adCode", aMapLocation.getAdCode());
+                result.putString("address", aMapLocation.getAddress());
+                result.putDouble("altitude", aMapLocation.getAltitude());
+                result.putString("aoiName", aMapLocation.getAoiName());
+                result.putDouble("bearing", aMapLocation.getBearing());
+                result.putString("buildingId", aMapLocation.getBuildingId());
+                result.putString("city", aMapLocation.getCity());
+                result.putString("cityCode", aMapLocation.getCityCode());
+                result.putString("country", aMapLocation.getCountry());
+                result.putString("district", aMapLocation.getDistrict());
+                result.putString("floor", aMapLocation.getFloor());
+                result.putDouble("longitude", aMapLocation.getLongitude());
+                result.putDouble("latitude", aMapLocation.getLatitude());
+                result.putInt("gpsAccuracyStatus", aMapLocation.getGpsAccuracyStatus());
+                result.putString("locationDetail", aMapLocation.getLocationDetail());
+                result.putInt("locationType", aMapLocation.getLocationType());
+                result.putString("poiName", aMapLocation.getPoiName());
+                result.putString("provider", aMapLocation.getProvider());
+                result.putString("province", aMapLocation.getProvince());
+                result.putDouble("speed", aMapLocation.getSpeed());
+                result.putString("street", aMapLocation.getStreet());
+                result.putString("streetNum", aMapLocation.getStreetNum());
+                mLocationPromise.resolve(result);
+            }
+            mLocationPromise = null;
+        }
     }
 }

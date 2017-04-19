@@ -17,4 +17,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'React'
   s.dependency 'AMapNavi-NO-IDFA'
+  s.dependency 'AMapLocation-NO-IDFA'
 end
