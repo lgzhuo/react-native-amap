@@ -17,6 +17,10 @@ import com.amap.api.navi.model.AimLessModeCongestionInfo;
 import com.amap.api.navi.model.AimLessModeStat;
 import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
+import com.amap.api.services.core.AMapException;
+import com.amap.api.services.core.PoiItem;
+import com.amap.api.services.poisearch.PoiResult;
+import com.amap.api.services.poisearch.PoiSearch;
 import com.autonavi.tbt.NaviStaticInfo;
 import com.autonavi.tbt.TrafficFacilityInfo;
 import com.facebook.react.bridge.Arguments;
@@ -34,6 +38,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by lgzhuo on 2017/3/16.
@@ -48,6 +54,7 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
 
     private AMapLocationClient mLocationClient;
     private Promise mLocationPromise;
+    private ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     AMapService(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -130,9 +137,9 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
 
     @ReactMethod
     public void getCurrentPosition(ReadableMap props, final Promise promise) {
-        if (mLocationPromise!=null){
+        if (mLocationPromise != null) {
             promise.reject("-1", "上次定位未结束");
-        }else{
+        } else {
             mLocationPromise = promise;
             props = ReadableMapWrapper.wrap(props);
             AMapLocationClientOption option = new AMapLocationClientOption();
@@ -156,6 +163,34 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
             }
         }
         return mLocationClient;
+    }
+
+    /* poiSearch */
+    @ReactMethod
+    public void poiSearch(ReadableMap props, final Promise promise) {
+        props = ReadableMapWrapper.wrap(props);
+        String keyWord = props.getString("keyWord");
+        String city = props.getString("city");
+        int pageSize = props.getInt("pageSize");
+        int pageNum = props.getInt("pageNum");
+        boolean cityLimit = props.getBoolean("cityLimit");
+        PoiSearch.Query query = new PoiSearch.Query(keyWord, "", city);
+        query.setPageSize(pageSize);
+        query.setPageNum(pageNum);
+        query.setCityLimit(cityLimit);
+        final PoiSearch search = new PoiSearch(getReactApplicationContext(), query);
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    PoiResult result = search.searchPOI();
+                    promise.resolve(AMapUtils.PoiResultConvert.cnv(result));
+                } catch (AMapException e) {
+                    e.printStackTrace();
+                    promise.reject(e);
+                }
+            }
+        });
     }
 
     /* AMapNaviListener */
@@ -326,7 +361,7 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        if (mLocationPromise!=null){
+        if (mLocationPromise != null) {
             if (aMapLocation.getErrorCode() != AMapLocation.LOCATION_SUCCESS) {
                 mLocationPromise.reject("" + aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
             } else {
@@ -359,4 +394,5 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
             mLocationPromise = null;
         }
     }
+
 }

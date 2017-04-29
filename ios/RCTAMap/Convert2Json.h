@@ -10,6 +10,7 @@
 #import <AMapNaviKit/AMapNaviKit.h>
 #import "Cluster.h"
 #import "ClusterPoint.h"
+#import <AMapSearchKit/AMapSearchKit.h>
 
 @interface Convert2Json : NSObject
 
@@ -22,6 +23,12 @@
 +(NSDictionary*)Cluster:(Cluster*)cluster;
 +(NSArray*)ClusterArray:(NSArray<Cluster*>*) array;
 
++(NSDictionary*)AMapPOISearchResponse:(AMapPOISearchResponse*) response;
+
++(NSDictionary*)AMapPOI:(AMapPOI*) poi;
++(NSArray*)AMapPOIArray:(NSArray<AMapPOI*>*) array;
+
++(NSDictionary*)AMapGeoPoint:(AMapGeoPoint*) point;
 @end
 
 extern NSArray *ConvertArray(SEL, NSArray* array);

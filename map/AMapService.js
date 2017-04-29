@@ -88,6 +88,29 @@ export type GeoLocation = {
     streetNum: string
 }
 
+export type POISearchProps = {
+    keyWord: string,
+    city: string,
+    pageSize: number,
+    pageNum: number,
+    cityLimit: boolean
+}
+
+export type POISearchResponse = {
+    adCode: ?string,
+    adName: ?string,
+    businessAres: ?string,
+    cityCode: ?string,
+    cityName: ?string,
+    direction: ?string,
+    distance: ?number,
+    email: ?string,
+    enter: ?LatLng,
+    exit: ?LatLng,
+    location: LatLng,
+    title: string
+}
+
 class AMapService {
     static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
         return await AMS.calculateNaviDriveRoute(props)
@@ -95,6 +118,10 @@ class AMapService {
 
     static async getCurrentPosition(props: LocationProps): Promise<GeoLocation> {
         return await AMS.getCurrentPosition(props)
+    }
+
+    static async poiSearch(props): Promise<POISearchResponse> {
+        return await AMS.poiSearch({pageSize: 10, pageNum: 0, cityLimit: true, ...props})
     }
 }
 

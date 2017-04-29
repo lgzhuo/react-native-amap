@@ -10,6 +10,9 @@ import com.amap.api.navi.model.AMapNaviLink;
 import com.amap.api.navi.model.AMapNaviPath;
 import com.amap.api.navi.model.AMapNaviStep;
 import com.amap.api.navi.model.NaviLatLng;
+import com.amap.api.services.core.LatLonPoint;
+import com.amap.api.services.core.PoiItem;
+import com.amap.api.services.poisearch.PoiResult;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -139,6 +142,45 @@ class AMapUtils {
             clusterMap.putMap("coordinate", LatLngConvert.cnv(cluster.getCoordinate()));
             clusterMap.putArray("points", ClusterPointConvert.cnvArr(cluster.getPoints()));
             return clusterMap;
+        }
+    };
+
+    static final Convert<LatLonPoint> LatLonPointConvert = new SimpleConvert<LatLonPoint>() {
+        @Override
+        public WritableMap cnv(LatLonPoint latLonPoint) {
+            WritableMap latLngMap = Arguments.createMap();
+            latLngMap.putDouble("latitude", latLonPoint.getLatitude());
+            latLngMap.putDouble("longitude", latLonPoint.getLongitude());
+            return latLngMap;
+        }
+    };
+
+    static final Convert<PoiItem> PoiItemConvert = new SimpleConvert<PoiItem>() {
+        @Override
+        public WritableMap cnv(PoiItem poiItem) {
+            WritableMap itemMap = Arguments.createMap();
+            itemMap.putString("adCode", poiItem.getAdCode());
+            itemMap.putString("adName", poiItem.getAdName());
+            itemMap.putString("businessAres", poiItem.getBusinessArea());
+            itemMap.putString("cityCode", poiItem.getCityCode());
+            itemMap.putString("cityName", poiItem.getCityName());
+            itemMap.putString("direction", poiItem.getDirection());
+            itemMap.putInt("distance", poiItem.getDistance());
+            itemMap.putString("email", poiItem.getEmail());
+            itemMap.putMap("enter", LatLonPointConvert.cnv(poiItem.getEnter()));
+            itemMap.putMap("exit", LatLonPointConvert.cnv(poiItem.getExit()));
+            itemMap.putMap("location", LatLonPointConvert.cnv(poiItem.getLatLonPoint()));
+            itemMap.putString("title", poiItem.getTitle());
+            return itemMap;
+        }
+    };
+
+    static final Convert<PoiResult> PoiResultConvert = new SimpleConvert<PoiResult>() {
+        @Override
+        public WritableMap cnv(PoiResult poiResult) {
+            WritableMap resultMap = Arguments.createMap();
+            resultMap.putArray("pois", PoiItemConvert.cnvArr(poiResult.getPois()));
+            return resultMap;
         }
     };
 

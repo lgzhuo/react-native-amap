@@ -14,6 +14,8 @@
 #import "Convert2Json.h"
 #import <AMapFoundationKit/AMapFoundationKit.h>
 #import <AMapLocationKit/AMapLocationKit.h>
+#import <AMapSearchKit/AMapSearchKit.h>
+#import <objc/runtime.h>
 
 @interface SingleLocationDelegate : NSObject<AMapLocationManagerDelegate>
 @property(nonatomic,copy)RCTPromiseRejectBlock reject;
@@ -32,9 +34,32 @@
 }
 @end
 
-@interface AMapService()<AMapNaviDriveManagerDelegate>
+@interface AMapPOIKeywordsSearchRequest(RCTAMap)
+@property(nonatomic,copy)RCTPromiseRejectBlock reject;
+@property(nonatomic,copy)RCTPromiseResolveBlock resolve;
+@end
+
+@implementation AMapPOIKeywordsSearchRequest(RCTAMap)
+-(void)setReject:(RCTPromiseRejectBlock)_reject{
+    objc_setAssociatedObject(self, @selector(reject), _reject, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+-(RCTPromiseRejectBlock)reject{
+    return objc_getAssociatedObject(self, _cmd);
+}
+
+-(void)setResolve:(RCTPromiseResolveBlock)_resolve{
+    objc_setAssociatedObject(self, @selector(resolve), _resolve, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+-(RCTPromiseResolveBlock)resolve{
+    return objc_getAssociatedObject(self, _cmd);
+}
+
+@end
+
+@interface AMapService()<AMapNaviDriveManagerDelegate,AMapSearchDelegate>
 @property(nonatomic,strong) AMapNaviDriveManager *naviDriveManager;
 @property(nonatomic,strong) AMapLocationManager *locationManager;
+@property(nonatomic,strong) AMapSearchAPI *searchApi;
 @end
 
 @implementation AMapService{
@@ -125,6 +150,18 @@ RCT_EXPORT_METHOD(getCurrentPosition:(NSDictionary*)props resolver:(RCTPromiseRe
     }];
 }
 
+RCT_EXPORT_METHOD(poiSearch:(NSDictionary*)props resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject){
+    AMapPOIKeywordsSearchRequest *request = [[AMapPOIKeywordsSearchRequest alloc]init];
+    request.keywords = [RCTConvert NSString:props[@"keyWord"]];
+    request.city = [RCTConvert NSString:props[@"city"]];
+    request.cityLimit = [RCTConvert BOOL:props[@"cityLimit"]];
+    request.offset = [RCTConvert NSInteger:props[@"pageSize"]];
+    request.page = [RCTConvert NSInteger:props[@"pageNum"]] +1;
+    request.reject = reject;
+    request.resolve = resolve;
+    [self.searchApi AMapPOIKeywordsSearch:request];
+}
+
 #pragma mark AMapNaviDriveManagerDelegate
 /**
  *  发生错误时,会调用代理的此方法
@@ -166,6 +203,29 @@ RCT_EXPORT_METHOD(getCurrentPosition:(NSDictionary*)props resolver:(RCTPromiseRe
   _naviDriveResolve = nil;
 }
 
+#pragma mark AMapSearchDelegate
+/**
+ * @brief 当请求发生错误时，会调用代理的此方法.
+ * @param request 发生错误的请求.
+ * @param error   返回的错误.
+ */
+- (void)AMapSearchRequest:(AMapPOIKeywordsSearchRequest*)request didFailWithError:(NSError *)error{
+    if (request.reject) {
+        request.reject([NSString stringWithFormat:@"%ld",error.code], error.domain ,error);
+    }
+}
+
+/**
+ * @brief POI查询回调函数
+ * @param request  发起的请求，具体字段参考 AMapPOISearchBaseRequest 及其子类。
+ * @param response 响应结果，具体字段参考 AMapPOISearchResponse 。
+ */
+- (void)onPOISearchDone:(AMapPOIKeywordsSearchRequest *)request response:(AMapPOISearchResponse *)response{
+    if (request.resolve) {
+        request.resolve([Convert2Json AMapPOISearchResponse:response]);
+    }
+}
+
 #pragma mark getter & setter
 -(AMapNaviDriveManager *)naviDriveManager{
   if (!_naviDriveManager) {
@@ -180,6 +240,14 @@ RCT_EXPORT_METHOD(getCurrentPosition:(NSDictionary*)props resolver:(RCTPromiseRe
         _locationManager = [[AMapLocationManager alloc]init];
     }
     return _locationManager;
+}
+
+-(AMapSearchAPI*)searchApi{
+    if (!_searchApi) {
+        _searchApi = [[AMapSearchAPI alloc]init];
+        _searchApi.delegate = self;
+    }
+    return _searchApi;
 }
 
 @end

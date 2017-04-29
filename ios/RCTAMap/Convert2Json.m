@@ -119,4 +119,29 @@ JSON_ARRAY_CONVERTER(ClusterPoint)
 
 JSON_ARRAY_CONVERTER(Cluster)
 
++(NSDictionary*)AMapPOISearchResponse:(AMapPOISearchResponse *)response{
+    return @{@"pois":response.pois?[self AMapPOIArray:response.pois]:[NSNull null]};
+}
+
++(NSDictionary*)AMapPOI:(AMapPOI*) poi{
+    return @{@"title":poi.name?poi.name:[NSNull null],
+             @"adCode":poi.adcode?poi.adcode:[NSNull null],
+             @"adName":poi.district?poi.district:[NSNull null],
+             @"businessAres":poi.businessArea?poi.businessArea:[NSNull null],
+             @"cityCode":poi.citycode?poi.citycode:[NSNull null],
+             @"cityName":poi.city?poi.city:[NSNull null],
+             @"direction":poi.direction?poi.direction:[NSNull null],
+             @"distance":@(poi.distance),
+             @"email":poi.email?poi.email:[NSNull null],
+             @"enter":poi.enterLocation?[self AMapGeoPoint:poi.enterLocation]:[NSNull null],
+             @"exit":poi.exitLocation?[self AMapGeoPoint:poi.exitLocation]:[NSNull null],
+             @"location":poi.location?[self AMapGeoPoint:poi.location]:[NSNull null]};
+}
+
+JSON_ARRAY_CONVERTER(AMapPOI);
+
++(NSDictionary*)AMapGeoPoint:(AMapGeoPoint*) point{
+    return @{@"latitude":@(point.latitude),
+             @"longitude":@(point.longitude)};
+}
 @end
