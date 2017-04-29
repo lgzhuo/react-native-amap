@@ -169,27 +169,34 @@ RCT_EXPORT_METHOD(poiSearch:(NSDictionary*)props resolver:(RCTPromiseResolveBloc
  *  @param error 错误信息
  */
 - (void)driveManager:(AMapNaviDriveManager *)driveManager error:(NSError *)error{
-  
+    NSLog(@"drive manager error %@", error);
+    if (_naviDriveReject) {
+        _naviDriveReject([NSString stringWithFormat:@"%ld",error.code], error.domain ,error);
+        _naviDriveReject = nil;
+        _naviDriveResolve = nil;
+    }
 }
 
 /**
  *  驾车路径规划成功后的回调函数
  */
 - (void)driveManagerOnCalculateRouteSuccess:(AMapNaviDriveManager *)driveManager{
-  if (driveManager.naviRoutes.count <=0) {
-    _naviDriveReject(@"-6", @"没有可用路线", nil);
-  }else{
-    NSMutableArray *routeArr = [NSMutableArray arrayWithCapacity:driveManager.naviRoutes.count];
-    for (NSNumber *aRouteID in [driveManager.naviRoutes allKeys]){
-      AMapNaviRoute *route = [driveManager.naviRoutes objectForKey:aRouteID];
-      route.routeID = [aRouteID integerValue];
-      
-      [routeArr addObject:[Convert2Json AMapNaviRoute:route]];
+    if (_naviDriveReject && _naviDriveResolve) {
+        if (driveManager.naviRoutes.count <=0) {
+            _naviDriveReject(@"-6", @"没有可用路线", nil);
+        }else{
+            NSMutableArray *routeArr = [NSMutableArray arrayWithCapacity:driveManager.naviRoutes.count];
+            for (NSNumber *aRouteID in [driveManager.naviRoutes allKeys]){
+                AMapNaviRoute *route = [driveManager.naviRoutes objectForKey:aRouteID];
+                route.routeID = [aRouteID integerValue];
+                
+                [routeArr addObject:[Convert2Json AMapNaviRoute:route]];
+            }
+            _naviDriveResolve(routeArr);
+        }
+        _naviDriveReject = nil;
+        _naviDriveResolve = nil;
     }
-    _naviDriveResolve(routeArr);
-  }
-  _naviDriveReject = nil;
-  _naviDriveResolve = nil;
 }
 
 /**
@@ -198,9 +205,12 @@ RCT_EXPORT_METHOD(poiSearch:(NSDictionary*)props resolver:(RCTPromiseResolveBloc
  *  @param error 错误信息,error.code参照AMapNaviCalcRouteState
  */
 - (void)driveManager:(AMapNaviDriveManager *)driveManager onCalculateRouteFailure:(NSError *)error{
-  _naviDriveReject([NSString stringWithFormat:@"%ld",error.code], error.domain ,error);
-  _naviDriveReject = nil;
-  _naviDriveResolve = nil;
+    NSLog(@"drive onCalculateRouteFailure %@", error);
+    if (_naviDriveReject) {
+        _naviDriveReject([NSString stringWithFormat:@"%ld",error.code], error.domain ,error);
+        _naviDriveReject = nil;
+        _naviDriveResolve = nil;
+    }
 }
 
 #pragma mark AMapSearchDelegate

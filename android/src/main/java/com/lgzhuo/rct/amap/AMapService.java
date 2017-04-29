@@ -1,11 +1,15 @@
 package com.lgzhuo.rct.amap;
 
+import android.app.Activity;
+import android.content.Intent;
+
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.navi.AMapNavi;
 import com.amap.api.navi.AMapNaviListener;
+import com.amap.api.navi.AMapNaviView;
 import com.amap.api.navi.model.AMapLaneInfo;
 import com.amap.api.navi.model.AMapNaviCross;
 import com.amap.api.navi.model.AMapNaviInfo;
@@ -65,14 +69,20 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
         return REACT_NAME;
     }
 
+    @Override
+    public void onCatalystInstanceDestroy() {
+        super.onCatalystInstanceDestroy();
+        if (this.mNavi!=null){
+            this.mNavi.removeAMapNaviListener(this);
+            this.mNavi.destroy();
+            this.mNavi = null;
+        }
+    }
+
     /* calculateNaviDriveRoute */
 
     @ReactMethod
     public void calculateNaviDriveRoute(ReadableMap props, Promise promise) {
-        if (mNaviRoutePromise != null) {
-            promise.reject("-1", "上次导航线路规划未结束，不能同步调用");
-            return;
-        }
         if (props == null || !props.hasKey("to")) {
             promise.reject("-2", "参数不完整");
             return;
@@ -108,10 +118,16 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //取消前一个路径规划
+        if (mNaviRoutePromise != null) {
+            mNaviRoutePromise.reject("-1", "有新的导航规划请求，当前路径规划已取消");
+            mNaviRoutePromise = null;
+        }
         boolean resolve;
         if (from != null) {
             resolve = getNavi().calculateDriveRoute(Collections.singletonList(from), Collections.singletonList(to), wayPoints, strategyFlag);
         } else {
+            getNavi().startGPS();
             resolve = getNavi().calculateDriveRoute(Collections.singletonList(to), wayPoints, strategyFlag);
         }
         if (resolve) {
@@ -131,6 +147,14 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
             }
         }
         return mNavi;
+    }
+
+    @ReactMethod
+    public void startNavi(ReadableMap props) {
+        Intent gpsintent = new Intent(getReactApplicationContext(), RouteNaviActivity.class);
+        gpsintent.putExtra("gps", true);
+        gpsintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getReactApplicationContext().startActivity(gpsintent);
     }
 
     /* getCurrentLocation */

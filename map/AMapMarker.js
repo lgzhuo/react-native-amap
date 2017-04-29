@@ -2,7 +2,7 @@
  * Created by lgzhuo on 2017/3/9.
  */
 import React, {Component, PropTypes} from 'react'
-import {requireNativeComponent, StyleSheet} from 'react-native'
+import {requireNativeComponent, StyleSheet, UIManager, findNodeHandle} from 'react-native'
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
 const NativeAMapMarker = requireNativeComponent('AMapMarker', AMapMarker, {
     nativeOnly: {
@@ -143,6 +143,18 @@ export default class AMapMarker extends Component {
                               style={[styles.marker, style]}/>
         )
     }
+
+    _runCommand = (command, ...props) => {
+        UIManager.dispatchViewManagerCommand(
+            findNodeHandle(this),
+            UIManager.AMapMarker.Commands.showCallout,
+            props
+        );
+    };
+
+    showCallout = () => this._runCommand('showCallout');
+
+    hideCallout = () => this._runCommand('hideCallout');
 }
 
 const styles = StyleSheet.create({

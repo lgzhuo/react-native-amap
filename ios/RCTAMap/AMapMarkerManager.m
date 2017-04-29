@@ -9,10 +9,20 @@
 #import "AMapMarkerManager.h"
 #import "AMapMarker.h"
 #import <React/RCTConvert+CoreLocation.h>
+#import <React/RCTUIManager.h>
 
 @implementation AMapMarkerManager
 
 RCT_EXPORT_MODULE(AMapMarker)
+
+-(UIView*)view{
+    AMapMarker *view = [[AMapMarker alloc]initWithAnnotation:nil reuseIdentifier:nil];
+    //  view.annotation = view;
+    [view addTapGestureRecognizer];
+    view.bridge = self.bridge;
+    
+    return view;
+}
 
 RCT_EXPORT_VIEW_PROPERTY(coordinate, CLLocationCoordinate2D)
 RCT_EXPORT_VIEW_PROPERTY(title, NSString)
@@ -40,14 +50,28 @@ RCT_EXPORT_VIEW_PROPERTY(onSelect, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCalloutPress, RCTDirectEventBlock)
 
+RCT_EXPORT_METHOD(showCallout:(nonnull NSNumber *)reactTag)
+{
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        id view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[AMapMarker class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting AMapMarker, got: %@", view);
+        } else {
+            [(AMapMarker *) view showCallout:YES];
+        }
+    }];
+}
 
--(UIView*)view{
-  AMapMarker *view = [[AMapMarker alloc]initWithAnnotation:nil reuseIdentifier:nil];
-//  view.annotation = view;
-    [view addTapGestureRecognizer];
-  view.bridge = self.bridge;
-  
-  return view;
+RCT_EXPORT_METHOD(hideCallout:(nonnull NSNumber *)reactTag)
+{
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        id view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[AMapMarker class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting AMapMarker, got: %@", view);
+        } else {
+            [(AMapMarker *) view dismissCallout:YES];
+        }
+    }];
 }
 
 @end

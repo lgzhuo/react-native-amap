@@ -16,6 +16,7 @@
 @property(nonatomic,readonly) NSArray *reactSubviews;
 @property(nonatomic,strong) NSArray<ClusterPoint*> *clusterData;
 @property(nonatomic,assign) float clusterSize;
+@property (nonatomic, assign) MACoordinateRegion initialRegion;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCluster;
 

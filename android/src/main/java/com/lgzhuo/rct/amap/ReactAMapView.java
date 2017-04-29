@@ -10,17 +10,21 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMapOptions;
+import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
-import com.amap.api.maps.MapView;
+import com.amap.api.maps.TextureMapView;
 import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
+import com.amap.api.maps.model.MyLocationStyle;
 import com.amap.api.maps.model.Polyline;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.lgzhuo.rct.amap.cluster.Cluster;
 import com.lgzhuo.rct.amap.cluster.ClusterComputer;
@@ -28,15 +32,19 @@ import com.lgzhuo.rct.amap.cluster.ClusterPoint;
 import com.lgzhuo.rct.amap.cluster.OnClusterListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
  * Created by lgzhuo on 2017/3/8.
+ * <p>
+ * 2017/4/30 将继承由MapView 改为TextureMapView解决当有多个AMapView instance时第一个叠加在后一个上的问题
+ * 见react-native-maps issues https://github.com/airbnb/react-native-maps/issues/453
  */
 
-class ReactAMapView extends MapView implements LocationSource, LifecycleEventListener, AMapLocationListener, AMap.OnMarkerClickListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, AMap.OnPolylineClickListener, AMap.OnCameraChangeListener, OnClusterListener, AMap.OnMapLoadedListener {
+class ReactAMapView extends TextureMapView implements LocationSource, LifecycleEventListener, AMapLocationListener, AMap.OnMarkerClickListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, AMap.OnPolylineClickListener, AMap.OnCameraChangeListener, OnClusterListener, AMap.OnMapLoadedListener {
 
     private AMapLocationClient mLocationClient;
     private LocationSource.OnLocationChangedListener mLocationChangeListener;
@@ -45,6 +53,7 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     private Map<Polyline, AMapPolyline> mPolylineMap = new WeakHashMap<>();
     private ClusterComputer mClusterComputer = new ClusterComputer();
     private boolean mMoveOnMarkerPress;
+    private LatLngBounds boundsToMove;
 
     public ReactAMapView(Context context) {
         super(context);
@@ -58,6 +67,7 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
         mClusterComputer.setOnClusterListener(this);
         AMap map = getMap();
         if (map != null) {
+            map.setOnMapLoadedListener(this);
             map.setOnMarkerClickListener(this);
             map.setInfoWindowAdapter(this);
             map.setOnInfoWindowClickListener(this);
@@ -68,13 +78,6 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     }
 
     public void setMyLocationEnabled(boolean enabled) {
-        if (enabled && mLocationClient == null) {
-            mLocationClient = new AMapLocationClient(getContext());
-            mLocationClient.setLocationListener(this);
-            AMapLocationClientOption locationOption = new AMapLocationClientOption();
-            locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-            mLocationClient.setLocationOption(locationOption);
-        }
         AMap map = getMap();
         if (map != null) {
             map.setLocationSource(this);
@@ -116,10 +119,83 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
         this.mMoveOnMarkerPress = moveOnPress;
     }
 
+    public void setRegion(ReadableMap region) {
+        if (region == null) return;
+
+        Double lng = region.getDouble("longitude");
+        Double lat = region.getDouble("latitude");
+        Double lngDelta = region.getDouble("longitudeDelta");
+        Double latDelta = region.getDouble("latitudeDelta");
+        LatLngBounds bounds = new LatLngBounds(
+                new LatLng(lat - latDelta / 2, lng - lngDelta / 2), // southwest
+                new LatLng(lat + latDelta / 2, lng + lngDelta / 2)  // northeast
+        );
+        if (super.getHeight() <= 0 || super.getWidth() <= 0) {
+            // in this case, our map has not been laid out yet, so we save the bounds in a local
+            // variable, and make a guess of zoomLevel 10. Not to worry, though: as soon as layout
+            // occurs, we will move the camera to the saved bounds. Note that if we tried to move
+            // to the bounds now, it would trigger an exception.
+            getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 10));
+            boundsToMove = bounds;
+        } else {
+            getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
+            boundsToMove = null;
+        }
+    }
+
     public void onDrop() {
         mClusterComputer.close();
-        onHostDestroy();
         ((ReactContext) getContext()).removeLifecycleEventListener(this);
+        destroyLocation();
+        onDestroy();
+    }
+
+    public void updateExtraData(Object extraData) {
+        // if boundsToMove is not null, we now have the MapView's width/height, so we can apply
+        // a proper camera move
+        if (boundsToMove != null) {
+            HashMap<String, Float> data = (HashMap<String, Float>) extraData;
+            float width = data.get("width");
+            float height = data.get("height");
+            getMap().moveCamera(
+                    CameraUpdateFactory.newLatLngBounds(
+                            boundsToMove,
+                            (int) width,
+                            (int) height,
+                            0
+                    )
+            );
+            boundsToMove = null;
+        }
+    }
+
+    private AMapLocationClient getLocationClient() {
+        if (mLocationClient == null) {
+            mLocationClient = new AMapLocationClient(getContext());
+            mLocationClient.setLocationListener(this);
+            AMapLocationClientOption locationOption = new AMapLocationClientOption();
+            locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+            mLocationClient.setLocationOption(locationOption);
+        }
+        return mLocationClient;
+    }
+
+    private void startLocation() {
+        getLocationClient().startLocation();
+    }
+
+    private void stopLocation() {
+        if (mLocationClient != null && mLocationClient.isStarted()) {
+            mLocationClient.stopLocation();
+        }
+    }
+
+    private void destroyLocation() {
+        if (mLocationClient != null) {
+            mLocationClient.stopLocation();
+            mLocationClient.onDestroy();
+            mLocationClient = null;
+        }
     }
 
     /*LifecycleEventListener*/
@@ -129,25 +205,19 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
         onResume();
         AMap map = getMap();
         if (map != null && map.isMyLocationEnabled()) {
-            mLocationClient.startLocation();
+            startLocation();
         }
     }
 
     @Override
     public void onHostPause() {
         onPause();
-        if (mLocationClient.isStarted()) {
-            mLocationClient.stopLocation();
-        }
+        stopLocation();
     }
 
     @Override
     public void onHostDestroy() {
-        onDestroy();
-        if (mLocationClient.isStarted()) {
-            mLocationClient.stopLocation();
-        }
-        mLocationClient.onDestroy();
+        onDrop();
     }
 
     public LatLngBounds getMarkerBounds() {
@@ -159,7 +229,7 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     }
 
     public AMapLocation getMyLastKnownLocation() {
-        return mLocationClient.getLastKnownLocation();
+        return getLocationClient().getLastKnownLocation();
     }
 
     public LatLng getMyLastKnownLatLng() {
@@ -209,12 +279,12 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     @Override
     public void activate(LocationSource.OnLocationChangedListener onLocationChangedListener) {
         mLocationChangeListener = onLocationChangedListener;
-        mLocationClient.startLocation();
+        startLocation();
     }
 
     @Override
     public void deactivate() {
-        mLocationClient.stopLocation();
+        stopLocation();
     }
 
     /* AMapLocationListener */
@@ -291,7 +361,8 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     @Override
     public void onCameraChangeFinish(CameraPosition cameraPosition) {
         AMap map = getMap();
-        mClusterComputer.setScaleAndBounds(map.getScalePerPixel(), map.getProjection().getVisibleRegion().latLngBounds);
+        LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
+        mClusterComputer.setScaleAndBounds(map.getScalePerPixel(), bounds);
     }
 
     /* OnClusterListener */
@@ -314,5 +385,7 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     @Override
     public void onMapLoaded() {
         mClusterComputer.setScaleAndBounds(getMap().getScalePerPixel(), getMap().getProjection().getVisibleRegion().latLngBounds);
+
+        pushEvent("onMapReady", new WritableNativeMap());
     }
 }

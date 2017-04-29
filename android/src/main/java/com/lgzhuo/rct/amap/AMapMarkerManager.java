@@ -4,6 +4,8 @@ import android.graphics.Color;
 import android.view.View;
 
 import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.Marker;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.LayoutShadowNode;
@@ -24,6 +26,8 @@ import javax.annotation.Nullable;
 class AMapMarkerManager extends ViewGroupManager<AMapMarker> {
 
     private static final String REACT_NAME = "AMapMarker";
+    private static final int SHOW_INFO_WINDOW = 1;
+    private static final int HIDE_INFO_WINDOW = 2;
 
     @Override
     public String getName() {
@@ -172,5 +176,27 @@ class AMapMarkerManager extends ViewGroupManager<AMapMarker> {
     @Override
     public View getChildAt(AMapMarker parent, int index) {
         return super.getChildAt(parent, index);
+    }
+
+    @Override
+    @Nullable
+    public Map<String, Integer> getCommandsMap() {
+        return MapBuilder.of(
+                "showCallout", SHOW_INFO_WINDOW,
+                "hideCallout", HIDE_INFO_WINDOW
+        );
+    }
+
+    @Override
+    public void receiveCommand(AMapMarker view, int commandId, @Nullable ReadableArray args) {
+        switch (commandId) {
+            case SHOW_INFO_WINDOW:
+                view.getFeature().showInfoWindow();
+                break;
+
+            case HIDE_INFO_WINDOW:
+                view.getFeature().hideInfoWindow();
+                break;
+        }
     }
 }

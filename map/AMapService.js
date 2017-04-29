@@ -110,6 +110,7 @@ export type POISearchResponse = {
     location: LatLng,
     title: string
 }
+export type StartNaviProps = {}
 
 class AMapService {
     static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
@@ -122,6 +123,10 @@ class AMapService {
 
     static async poiSearch(props): Promise<POISearchResponse> {
         return await AMS.poiSearch({pageSize: 10, pageNum: 0, cityLimit: true, ...props})
+    }
+
+    static startNavi(props: StartNaviProps) {
+        AMS.startNavi(props)
     }
 }
 

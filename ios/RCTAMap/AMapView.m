@@ -27,6 +27,7 @@
 @implementation AMapView
 {
   NSMutableArray<UIView *> *_reactSubviews;
+    BOOL _initialRegionSet;
 }
 
 -(instancetype)init
@@ -199,5 +200,31 @@
         });
     }
 }
+
+- (void)setInitialRegion:(MACoordinateRegion)initialRegion {
+    if (!_initialRegionSet) {
+        _initialRegionSet = YES;
+        [self setRegion:initialRegion animated:NO];
+    }
+}
+
+- (void)setRegion:(MACoordinateRegion)region animated:(BOOL)animated{
+    // If location is invalid, abort
+    if (!CLLocationCoordinate2DIsValid(region.center)) {
+        return;
+    }
+    
+    // If new span values are nil, use old values instead
+    if (!region.span.latitudeDelta) {
+        region.span.latitudeDelta = self.region.span.latitudeDelta;
+    }
+    if (!region.span.longitudeDelta) {
+        region.span.longitudeDelta = self.region.span.longitudeDelta;
+    }
+    
+    // Animate/move to new position
+    [super setRegion:region animated:animated];
+}
+
 
 @end

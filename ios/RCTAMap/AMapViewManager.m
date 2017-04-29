@@ -34,6 +34,15 @@ RCT_EXPORT_VIEW_PROPERTY(showsScale, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(clusterData, ClusterPointArray)
 RCT_EXPORT_VIEW_PROPERTY(clusterSize, float)
 RCT_EXPORT_VIEW_PROPERTY(onCluster, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(initialRegion, MACoordinateRegion)
+
+RCT_CUSTOM_VIEW_PROPERTY(region, MACoordinateRegion, AMapView)
+{
+    if (json == nil) return;
+    
+    [view setRegion:[RCTConvert MACoordinateRegion:json] animated:NO];
+}
+
 
 RCT_EXPORT_METHOD(centerCoordinate: (nonnull NSNumber *)reactTag
                   coordinate:(CLLocationCoordinate2D)coordinate

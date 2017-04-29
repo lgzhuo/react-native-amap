@@ -148,6 +148,7 @@ class AMapUtils {
     static final Convert<LatLonPoint> LatLonPointConvert = new SimpleConvert<LatLonPoint>() {
         @Override
         public WritableMap cnv(LatLonPoint latLonPoint) {
+            if (latLonPoint == null) return null;
             WritableMap latLngMap = Arguments.createMap();
             latLngMap.putDouble("latitude", latLonPoint.getLatitude());
             latLngMap.putDouble("longitude", latLonPoint.getLongitude());
@@ -158,6 +159,7 @@ class AMapUtils {
     static final Convert<PoiItem> PoiItemConvert = new SimpleConvert<PoiItem>() {
         @Override
         public WritableMap cnv(PoiItem poiItem) {
+            if (poiItem == null) return null;
             WritableMap itemMap = Arguments.createMap();
             itemMap.putString("adCode", poiItem.getAdCode());
             itemMap.putString("adName", poiItem.getAdName());
@@ -223,6 +225,7 @@ class AMapUtils {
 
         @Override
         public WritableArray cnvArr(Collection<T> collection) {
+            if (collection == null) return null;
             WritableArray array = Arguments.createArray();
             for (T t : collection) {
                 array.pushMap(cnv(t));
