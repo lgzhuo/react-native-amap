@@ -60,6 +60,29 @@ export default class AMap extends Component {
          * @platform android
          */
         moveOnMarkerPress: PropTypes.bool,
+
+        /**
+         * The initial region to be displayed by the map.  Use this prop instead of `region`
+         * only if you don't want to control the viewport of the map besides the initial region.
+         *
+         * Changing this prop after the component has mounted will not result in a region change.
+         *
+         * This is similar to the `initialValue` prop of a text input.
+         */
+        initialRegion: PropTypes.shape({
+            /**
+             * Coordinates for the center of the map.
+             */
+            latitude: PropTypes.number.isRequired,
+            longitude: PropTypes.number.isRequired,
+
+            /**
+             * Difference between the minimun and the maximum latitude/longitude
+             * to be displayed.
+             */
+            latitudeDelta: PropTypes.number.isRequired,
+            longitudeDelta: PropTypes.number.isRequired,
+        }),
     };
 
     static defaultProps = {

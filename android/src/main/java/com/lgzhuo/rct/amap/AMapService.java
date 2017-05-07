@@ -1,11 +1,15 @@
 package com.lgzhuo.rct.amap;
 
+import android.app.Activity;
+import android.content.Intent;
+
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.navi.AMapNavi;
 import com.amap.api.navi.AMapNaviListener;
+import com.amap.api.navi.AMapNaviView;
 import com.amap.api.navi.model.AMapLaneInfo;
 import com.amap.api.navi.model.AMapNaviCross;
 import com.amap.api.navi.model.AMapNaviInfo;
@@ -126,13 +130,21 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
         return mNavi;
     }
 
+    @ReactMethod
+    public void startNavi(ReadableMap props) {
+        Intent gpsintent = new Intent(getReactApplicationContext(), RouteNaviActivity.class);
+        gpsintent.putExtra("gps", true);
+        gpsintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getReactApplicationContext().startActivity(gpsintent);
+    }
+
     /* getCurrentLocation */
 
     @ReactMethod
     public void getCurrentPosition(ReadableMap props, final Promise promise) {
-        if (mLocationPromise!=null){
+        if (mLocationPromise != null) {
             promise.reject("-1", "上次定位未结束");
-        }else{
+        } else {
             mLocationPromise = promise;
             props = ReadableMapWrapper.wrap(props);
             AMapLocationClientOption option = new AMapLocationClientOption();
@@ -326,7 +338,7 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        if (mLocationPromise!=null){
+        if (mLocationPromise != null) {
             if (aMapLocation.getErrorCode() != AMapLocation.LOCATION_SUCCESS) {
                 mLocationPromise.reject("" + aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
             } else {

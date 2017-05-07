@@ -27,6 +27,7 @@
 @implementation AMapView
 {
   NSMutableArray<UIView *> *_reactSubviews;
+    BOOL _initialRegionSet;
 }
 
 -(instancetype)init
@@ -197,6 +198,13 @@
             
             weakSelf.onCluster(@{@"clustered":[Convert2Json ClusterArray:clustered]});
         });
+    }
+}
+
+- (void)setInitialRegion:(MACoordinateRegion)initialRegion {
+    if (!_initialRegionSet) {
+        _initialRegionSet = YES;
+        [self setRegion:initialRegion animated:NO];
     }
 }
 

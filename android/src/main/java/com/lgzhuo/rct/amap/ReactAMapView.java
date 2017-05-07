@@ -10,6 +10,7 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMapOptions;
+import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.model.CameraPosition;
@@ -20,6 +21,7 @@ import com.amap.api.maps.model.Polyline;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.lgzhuo.rct.amap.cluster.Cluster;
@@ -28,6 +30,7 @@ import com.lgzhuo.rct.amap.cluster.ClusterPoint;
 import com.lgzhuo.rct.amap.cluster.OnClusterListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -45,6 +48,8 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
     private Map<Polyline, AMapPolyline> mPolylineMap = new WeakHashMap<>();
     private ClusterComputer mClusterComputer = new ClusterComputer();
     private boolean mMoveOnMarkerPress;
+    private LatLngBounds boundsToMove;
+    private boolean initialRegionSet = false;
 
     public ReactAMapView(Context context) {
         super(context);
@@ -116,10 +121,54 @@ class ReactAMapView extends MapView implements LocationSource, LifecycleEventLis
         this.mMoveOnMarkerPress = moveOnPress;
     }
 
+    public void setInitialRegion(ReadableMap region) {
+        if (region == null || initialRegionSet) return;
+
+        Double lng = region.getDouble("longitude");
+        Double lat = region.getDouble("latitude");
+        Double lngDelta = region.getDouble("longitudeDelta");
+        Double latDelta = region.getDouble("latitudeDelta");
+        LatLngBounds bounds = new LatLngBounds(
+                new LatLng(lat - latDelta / 2, lng - lngDelta / 2), // southwest
+                new LatLng(lat + latDelta / 2, lng + lngDelta / 2)  // northeast
+        );
+        if (super.getHeight() <= 0 || super.getWidth() <= 0) {
+            // in this case, our map has not been laid out yet, so we save the bounds in a local
+            // variable, and make a guess of zoomLevel 10. Not to worry, though: as soon as layout
+            // occurs, we will move the camera to the saved bounds. Note that if we tried to move
+            // to the bounds now, it would trigger an exception.
+            getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 10));
+            boundsToMove = bounds;
+        } else {
+            getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
+            boundsToMove = null;
+        }
+        initialRegionSet = true;
+    }
+
     public void onDrop() {
         mClusterComputer.close();
         onHostDestroy();
         ((ReactContext) getContext()).removeLifecycleEventListener(this);
+    }
+
+    public void updateExtraData(Object extraData) {
+        // if boundsToMove is not null, we now have the MapView's width/height, so we can apply
+        // a proper camera move
+        if (boundsToMove != null) {
+            HashMap<String, Float> data = (HashMap<String, Float>) extraData;
+            float width = data.get("width");
+            float height = data.get("height");
+            getMap().moveCamera(
+                    CameraUpdateFactory.newLatLngBounds(
+                            boundsToMove,
+                            (int) width,
+                            (int) height,
+                            0
+                    )
+            );
+            boundsToMove = null;
+        }
     }
 
     /*LifecycleEventListener*/

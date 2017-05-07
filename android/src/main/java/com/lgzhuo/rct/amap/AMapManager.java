@@ -9,6 +9,7 @@ import com.amap.api.maps.model.LatLngBounds;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
+import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
@@ -98,6 +99,11 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
     @ReactProp(name = "moveOnMarkerPress", defaultBoolean = true)
     public void setMoveOnMarkerPress(ReactAMapView view, boolean moveOnMarkerPress) {
         view.setMoveOnMarkerPress(moveOnMarkerPress);
+    }
+
+    @ReactProp(name = "initialRegion")
+    public void setInitialRegion(ReactAMapView view, ReadableMap region) {
+        view.setInitialRegion(region);
     }
 
     @Override
@@ -206,5 +212,17 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
     @Override
     public View getChildAt(ReactAMapView parent, int index) {
         return parent.getFeatureAt(index);
+    }
+
+    @Override
+    public LayoutShadowNode createShadowNodeInstance() {
+        // A custom shadow node is needed in order to pass back the width/height of the map to the
+        // view manager so that it can start applying camera moves with bounds.
+        return new SizeReportingShadowNode();
+    }
+
+    @Override
+    public void updateExtraData(ReactAMapView view, Object extraData) {
+        view.updateExtraData(extraData);
     }
 }

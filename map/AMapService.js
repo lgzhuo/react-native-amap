@@ -88,6 +88,8 @@ export type GeoLocation = {
     streetNum: string
 }
 
+export type StartNaviProps = {}
+
 class AMapService {
     static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
         return await AMS.calculateNaviDriveRoute(props)
@@ -95,6 +97,10 @@ class AMapService {
 
     static async getCurrentPosition(props: LocationProps): Promise<GeoLocation> {
         return await AMS.getCurrentPosition(props)
+    }
+
+    static startNavi(props: StartNaviProps) {
+        AMS.startNavi(props)
     }
 }
 
