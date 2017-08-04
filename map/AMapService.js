@@ -1,7 +1,8 @@
 /**
  * Created by lgzhuo on 2017/3/16.
  */
-import {NativeModules, Alert} from 'react-native'
+import {NativeModules} from 'react-native'
+
 const AMS = NativeModules.AMapService;
 
 type LatLng = {
@@ -97,20 +98,58 @@ export type POISearchProps = {
 }
 
 export type POISearchResponse = {
-    adCode: ?string,
-    adName: ?string,
-    businessAres: ?string,
-    cityCode: ?string,
-    cityName: ?string,
-    direction: ?string,
-    distance: ?number,
-    email: ?string,
-    enter: ?LatLng,
-    exit: ?LatLng,
+    adCode?: string,
+    adName?: string,
+    businessAres?: string,
+    cityCode?: string,
+    cityName?: string,
+    direction?: string,
+    distance?: number,
+    email?: string,
+    enter?: LatLng,
+    exit?: LatLng,
     location: LatLng,
     title: string
 }
 export type StartNaviProps = {}
+
+// http://lbs.amap.com/api/amap-mobile/guide/ios/route
+// http://lbs.amap.com/api/amap-mobile/guide/android/route
+export type AMapRouteProps = {
+    sourceApplication: string,//第三方调用应用名称
+    dlat: number,             //终点纬度
+    dlon: number,             //终点经度
+    dev: 0 | 1,               //起终点是否偏移(0:lat 和 lon 是已经加密后的,不需要国测加密; 1:需要国测加密)
+    t: 0 | 1 | 2 | 3 | 4 | 5, //t = 0（驾车）= 1（公交）= 2（步行）= 3（骑行）= 4（火车）= 5（长途客车）
+    sid?: string,             //起点的POIID
+    slat?: number,            //起点纬度。如果不填写此参数则自动将用户当前位置设为起点纬度。
+    slon?: number,            //起点经度。 如果不填写此参数则自动将用户当前位置设为起点经度。
+    sname?: string,           //起点名称
+    did?: string,             //终点的POIID
+    dname?: string            //终点名称
+}
+
+/**
+ * http://lbsyun.baidu.com/index.php?title=uri/api/android
+ * http://lbsyun.baidu.com/index.php?title=uri/api/ios
+ *
+ * origin和destination二者至少一个有值（默认值是当前定位地址）
+ *
+ */
+export type baiduMapRouteProps = {
+    origin?: string,                                    //起点名称或经纬度，或者可同时提供名称和经纬度，此时经纬度优先级高，将作为导航依据，名称只负责展示
+    destination?: string,                               //终点名称或经纬度，或者可同时提供名称和经纬度，此时经纬度优先级高，将作为导航依据，名称只负责展示。
+    mode?: 'transit' | 'driving' | 'walking' | 'riding',//导航模式，可选transit（公交）、driving（驾车）、walking（步行）和riding（骑行）.默认:driving
+    region?: string,                                    //城市名或县名
+    origin_region?: string,                             //起点所在城市或县
+    destination_region?: string,                        //终点所在城市或县
+    sy?: 0 | 2 | 3 | 4 | 5 | 6,                         //@platform android. 公交检索策略，只针对mode字段填写transit情况下有效，值为数字。 0：推荐路线 2：少换乘 3：少步行 4：不坐地铁 5：时间短 6：地铁优先
+    index?: number,                                     //@platform android. 公交结果结果项，只针对公交检索，值为数字，从0开始
+    target?: 0 | 1,                                     //@platform android. 0 图区，1 详情，只针对公交检索有效
+    coord_type?:string,                                 //@platform web,ios. 坐标类型，可选参数，默认为bd09ll。
+    zoom?:number,                                       //@platform web,ios. 展现地图的级别，默认为视觉最优级别。
+    src?:string                                         //@platform web,ios. 调用来源，ios 规则：webapp.navi.yourCompanyName.yourAppName
+}
 
 class AMapService {
     static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
@@ -127,6 +166,14 @@ class AMapService {
 
     static startNavi(props: StartNaviProps) {
         AMS.startNavi(props)
+    }
+
+    static callAMapRoute(props: AMapRouteProps) {
+        AMS.callAMapRoute(props)
+    }
+
+    static callBaiduMapRoute(props: baiduMapRouteProps) {
+        AMS.callBaiduMapRoute(props)
     }
 }
 

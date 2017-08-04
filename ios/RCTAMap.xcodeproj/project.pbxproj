@@ -7,8 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		779B2C341E9B1C170028CBE6 /* RCTAMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 779B2C331E9B1C170028CBE6 /* RCTAMap.m */; };
-		779B2C351E9B1C170028CBE6 /* RCTAMap.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 779B2C321E9B1C160028CBE6 /* RCTAMap.h */; };
+		778ECF1C1F2B5D2900D1DA58 /* AMapCallout.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECEF91F2B5D2900D1DA58 /* AMapCallout.m */; };
+		778ECF1D1F2B5D2900D1DA58 /* AMapCalloutManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECEFB1F2B5D2900D1DA58 /* AMapCalloutManager.m */; };
+		778ECF1E1F2B5D2900D1DA58 /* AMapCoordinate.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECEFD1F2B5D2900D1DA58 /* AMapCoordinate.m */; };
+		778ECF1F1F2B5D2900D1DA58 /* AMapMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECEFF1F2B5D2900D1DA58 /* AMapMarker.m */; };
+		778ECF201F2B5D2900D1DA58 /* AMapMarkerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF011F2B5D2900D1DA58 /* AMapMarkerManager.m */; };
+		778ECF211F2B5D2900D1DA58 /* AMapNaviRoute+ID.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF031F2B5D2900D1DA58 /* AMapNaviRoute+ID.m */; };
+		778ECF221F2B5D2900D1DA58 /* AMapPolyline.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF051F2B5D2900D1DA58 /* AMapPolyline.m */; };
+		778ECF231F2B5D2900D1DA58 /* AMapPolylineManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF071F2B5D2900D1DA58 /* AMapPolylineManager.m */; };
+		778ECF241F2B5D2900D1DA58 /* AMapService.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF091F2B5D2900D1DA58 /* AMapService.m */; };
+		778ECF251F2B5D2900D1DA58 /* AMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF0B1F2B5D2900D1DA58 /* AMapView.m */; };
+		778ECF261F2B5D2900D1DA58 /* AMapViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF0D1F2B5D2900D1DA58 /* AMapViewManager.m */; };
+		778ECF271F2B5D2900D1DA58 /* Cluster.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF0F1F2B5D2900D1DA58 /* Cluster.m */; };
+		778ECF281F2B5D2900D1DA58 /* ClusterPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF111F2B5D2900D1DA58 /* ClusterPoint.m */; };
+		778ECF291F2B5D2900D1DA58 /* Convert2Json.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF131F2B5D2900D1DA58 /* Convert2Json.m */; };
+		778ECF2A1F2B5D2900D1DA58 /* CoordinateQuadTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF151F2B5D2900D1DA58 /* CoordinateQuadTree.m */; };
+		778ECF2B1F2B5D2900D1DA58 /* QuadTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF171F2B5D2900D1DA58 /* QuadTree.m */; };
+		778ECF2C1F2B5D2900D1DA58 /* RCTConvert+MAMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF191F2B5D2900D1DA58 /* RCTConvert+MAMap.m */; };
+		778ECF2D1F2B5D2900D1DA58 /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF1B1F2B5D2900D1DA58 /* SMCalloutView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -18,16 +34,49 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				779B2C351E9B1C170028CBE6 /* RCTAMap.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		778ECEF81F2B5D2900D1DA58 /* AMapCallout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapCallout.h; sourceTree = "<group>"; };
+		778ECEF91F2B5D2900D1DA58 /* AMapCallout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapCallout.m; sourceTree = "<group>"; };
+		778ECEFA1F2B5D2900D1DA58 /* AMapCalloutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapCalloutManager.h; sourceTree = "<group>"; };
+		778ECEFB1F2B5D2900D1DA58 /* AMapCalloutManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapCalloutManager.m; sourceTree = "<group>"; };
+		778ECEFC1F2B5D2900D1DA58 /* AMapCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapCoordinate.h; sourceTree = "<group>"; };
+		778ECEFD1F2B5D2900D1DA58 /* AMapCoordinate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapCoordinate.m; sourceTree = "<group>"; };
+		778ECEFE1F2B5D2900D1DA58 /* AMapMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapMarker.h; sourceTree = "<group>"; };
+		778ECEFF1F2B5D2900D1DA58 /* AMapMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapMarker.m; sourceTree = "<group>"; };
+		778ECF001F2B5D2900D1DA58 /* AMapMarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapMarkerManager.h; sourceTree = "<group>"; };
+		778ECF011F2B5D2900D1DA58 /* AMapMarkerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapMarkerManager.m; sourceTree = "<group>"; };
+		778ECF021F2B5D2900D1DA58 /* AMapNaviRoute+ID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AMapNaviRoute+ID.h"; sourceTree = "<group>"; };
+		778ECF031F2B5D2900D1DA58 /* AMapNaviRoute+ID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AMapNaviRoute+ID.m"; sourceTree = "<group>"; };
+		778ECF041F2B5D2900D1DA58 /* AMapPolyline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapPolyline.h; sourceTree = "<group>"; };
+		778ECF051F2B5D2900D1DA58 /* AMapPolyline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapPolyline.m; sourceTree = "<group>"; };
+		778ECF061F2B5D2900D1DA58 /* AMapPolylineManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapPolylineManager.h; sourceTree = "<group>"; };
+		778ECF071F2B5D2900D1DA58 /* AMapPolylineManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapPolylineManager.m; sourceTree = "<group>"; };
+		778ECF081F2B5D2900D1DA58 /* AMapService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapService.h; sourceTree = "<group>"; };
+		778ECF091F2B5D2900D1DA58 /* AMapService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapService.m; sourceTree = "<group>"; };
+		778ECF0A1F2B5D2900D1DA58 /* AMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapView.h; sourceTree = "<group>"; };
+		778ECF0B1F2B5D2900D1DA58 /* AMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapView.m; sourceTree = "<group>"; };
+		778ECF0C1F2B5D2900D1DA58 /* AMapViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapViewManager.h; sourceTree = "<group>"; };
+		778ECF0D1F2B5D2900D1DA58 /* AMapViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapViewManager.m; sourceTree = "<group>"; };
+		778ECF0E1F2B5D2900D1DA58 /* Cluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cluster.h; sourceTree = "<group>"; };
+		778ECF0F1F2B5D2900D1DA58 /* Cluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Cluster.m; sourceTree = "<group>"; };
+		778ECF101F2B5D2900D1DA58 /* ClusterPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterPoint.h; sourceTree = "<group>"; };
+		778ECF111F2B5D2900D1DA58 /* ClusterPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClusterPoint.m; sourceTree = "<group>"; };
+		778ECF121F2B5D2900D1DA58 /* Convert2Json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Convert2Json.h; sourceTree = "<group>"; };
+		778ECF131F2B5D2900D1DA58 /* Convert2Json.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Convert2Json.m; sourceTree = "<group>"; };
+		778ECF141F2B5D2900D1DA58 /* CoordinateQuadTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinateQuadTree.h; sourceTree = "<group>"; };
+		778ECF151F2B5D2900D1DA58 /* CoordinateQuadTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinateQuadTree.m; sourceTree = "<group>"; };
+		778ECF161F2B5D2900D1DA58 /* QuadTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTree.h; sourceTree = "<group>"; };
+		778ECF171F2B5D2900D1DA58 /* QuadTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuadTree.m; sourceTree = "<group>"; };
+		778ECF181F2B5D2900D1DA58 /* RCTConvert+MAMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCTConvert+MAMap.h"; sourceTree = "<group>"; };
+		778ECF191F2B5D2900D1DA58 /* RCTConvert+MAMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCTConvert+MAMap.m"; sourceTree = "<group>"; };
+		778ECF1A1F2B5D2900D1DA58 /* SMCalloutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMCalloutView.h; sourceTree = "<group>"; };
+		778ECF1B1F2B5D2900D1DA58 /* SMCalloutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCalloutView.m; sourceTree = "<group>"; };
 		779B2C2F1E9B1C160028CBE6 /* libRCTAMap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTAMap.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		779B2C321E9B1C160028CBE6 /* RCTAMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTAMap.h; sourceTree = "<group>"; };
-		779B2C331E9B1C170028CBE6 /* RCTAMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTAMap.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,10 +90,53 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		778ECEF71F2B5D2900D1DA58 /* RCTAMap */ = {
+			isa = PBXGroup;
+			children = (
+				778ECEF81F2B5D2900D1DA58 /* AMapCallout.h */,
+				778ECEF91F2B5D2900D1DA58 /* AMapCallout.m */,
+				778ECEFA1F2B5D2900D1DA58 /* AMapCalloutManager.h */,
+				778ECEFB1F2B5D2900D1DA58 /* AMapCalloutManager.m */,
+				778ECEFC1F2B5D2900D1DA58 /* AMapCoordinate.h */,
+				778ECEFD1F2B5D2900D1DA58 /* AMapCoordinate.m */,
+				778ECEFE1F2B5D2900D1DA58 /* AMapMarker.h */,
+				778ECEFF1F2B5D2900D1DA58 /* AMapMarker.m */,
+				778ECF001F2B5D2900D1DA58 /* AMapMarkerManager.h */,
+				778ECF011F2B5D2900D1DA58 /* AMapMarkerManager.m */,
+				778ECF021F2B5D2900D1DA58 /* AMapNaviRoute+ID.h */,
+				778ECF031F2B5D2900D1DA58 /* AMapNaviRoute+ID.m */,
+				778ECF041F2B5D2900D1DA58 /* AMapPolyline.h */,
+				778ECF051F2B5D2900D1DA58 /* AMapPolyline.m */,
+				778ECF061F2B5D2900D1DA58 /* AMapPolylineManager.h */,
+				778ECF071F2B5D2900D1DA58 /* AMapPolylineManager.m */,
+				778ECF081F2B5D2900D1DA58 /* AMapService.h */,
+				778ECF091F2B5D2900D1DA58 /* AMapService.m */,
+				778ECF0A1F2B5D2900D1DA58 /* AMapView.h */,
+				778ECF0B1F2B5D2900D1DA58 /* AMapView.m */,
+				778ECF0C1F2B5D2900D1DA58 /* AMapViewManager.h */,
+				778ECF0D1F2B5D2900D1DA58 /* AMapViewManager.m */,
+				778ECF0E1F2B5D2900D1DA58 /* Cluster.h */,
+				778ECF0F1F2B5D2900D1DA58 /* Cluster.m */,
+				778ECF101F2B5D2900D1DA58 /* ClusterPoint.h */,
+				778ECF111F2B5D2900D1DA58 /* ClusterPoint.m */,
+				778ECF121F2B5D2900D1DA58 /* Convert2Json.h */,
+				778ECF131F2B5D2900D1DA58 /* Convert2Json.m */,
+				778ECF141F2B5D2900D1DA58 /* CoordinateQuadTree.h */,
+				778ECF151F2B5D2900D1DA58 /* CoordinateQuadTree.m */,
+				778ECF161F2B5D2900D1DA58 /* QuadTree.h */,
+				778ECF171F2B5D2900D1DA58 /* QuadTree.m */,
+				778ECF181F2B5D2900D1DA58 /* RCTConvert+MAMap.h */,
+				778ECF191F2B5D2900D1DA58 /* RCTConvert+MAMap.m */,
+				778ECF1A1F2B5D2900D1DA58 /* SMCalloutView.h */,
+				778ECF1B1F2B5D2900D1DA58 /* SMCalloutView.m */,
+			);
+			path = RCTAMap;
+			sourceTree = "<group>";
+		};
 		779B2C261E9B1C110028CBE6 = {
 			isa = PBXGroup;
 			children = (
-				779B2C311E9B1C160028CBE6 /* RCTAMap */,
+				778ECEF71F2B5D2900D1DA58 /* RCTAMap */,
 				779B2C301E9B1C160028CBE6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -55,15 +147,6 @@
 				779B2C2F1E9B1C160028CBE6 /* libRCTAMap.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		779B2C311E9B1C160028CBE6 /* RCTAMap */ = {
-			isa = PBXGroup;
-			children = (
-				779B2C321E9B1C160028CBE6 /* RCTAMap.h */,
-				779B2C331E9B1C170028CBE6 /* RCTAMap.m */,
-			);
-			path = RCTAMap;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -123,7 +206,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				779B2C341E9B1C170028CBE6 /* RCTAMap.m in Sources */,
+				778ECF2B1F2B5D2900D1DA58 /* QuadTree.m in Sources */,
+				778ECF201F2B5D2900D1DA58 /* AMapMarkerManager.m in Sources */,
+				778ECF281F2B5D2900D1DA58 /* ClusterPoint.m in Sources */,
+				778ECF251F2B5D2900D1DA58 /* AMapView.m in Sources */,
+				778ECF1F1F2B5D2900D1DA58 /* AMapMarker.m in Sources */,
+				778ECF2A1F2B5D2900D1DA58 /* CoordinateQuadTree.m in Sources */,
+				778ECF1C1F2B5D2900D1DA58 /* AMapCallout.m in Sources */,
+				778ECF2D1F2B5D2900D1DA58 /* SMCalloutView.m in Sources */,
+				778ECF211F2B5D2900D1DA58 /* AMapNaviRoute+ID.m in Sources */,
+				778ECF291F2B5D2900D1DA58 /* Convert2Json.m in Sources */,
+				778ECF1D1F2B5D2900D1DA58 /* AMapCalloutManager.m in Sources */,
+				778ECF221F2B5D2900D1DA58 /* AMapPolyline.m in Sources */,
+				778ECF2C1F2B5D2900D1DA58 /* RCTConvert+MAMap.m in Sources */,
+				778ECF231F2B5D2900D1DA58 /* AMapPolylineManager.m in Sources */,
+				778ECF1E1F2B5D2900D1DA58 /* AMapCoordinate.m in Sources */,
+				778ECF261F2B5D2900D1DA58 /* AMapViewManager.m in Sources */,
+				778ECF271F2B5D2900D1DA58 /* Cluster.m in Sources */,
+				778ECF241F2B5D2900D1DA58 /* AMapService.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +355,7 @@
 				779B2C3A1E9B1C170028CBE6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

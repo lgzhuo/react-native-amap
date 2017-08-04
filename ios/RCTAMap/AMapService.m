@@ -17,6 +17,11 @@
 #import <AMapSearchKit/AMapSearchKit.h>
 #import <objc/runtime.h>
 
+#define AMapRequiredParameters @[@"sourceApplication",@"dlat",@"dlon",@"dev",@"t"]
+#define AMapOptionalParameters @[@"sid",@"slat",@"slon",@"sname",@"did",@"dname"]
+#define baiduMapRequiredParameters @[@"mode",@"src"]
+#define baiduMapOptionalParameters @[@"origin",@"destination",@"region",@"origin_region",@"destination_region",@"coord_type",@"zoom"]
+
 @interface SingleLocationDelegate : NSObject<AMapLocationManagerDelegate>
 @property(nonatomic,copy)RCTPromiseRejectBlock reject;
 @property(nonatomic,copy)RCTPromiseResolveBlock resolve;
@@ -125,7 +130,7 @@ RCT_EXPORT_METHOD(getCurrentPosition:(NSDictionary*)props resolver:(RCTPromiseRe
     self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
     [self.locationManager requestLocationWithReGeocode:YES completionBlock:^(CLLocation *location, AMapLocationReGeocode *regeocode, NSError *error) {
         if (error) {
-            reject([NSString stringWithFormat:@"%d",error.code],error.description,error);
+            reject([NSString stringWithFormat:@"%ld",(long)error.code],error.description,error);
         }else{
             resolve(@{@"latitude":@(location.coordinate.latitude),
                       @"longitude":@(location.coordinate.longitude),
@@ -135,7 +140,6 @@ RCT_EXPORT_METHOD(getCurrentPosition:(NSDictionary*)props resolver:(RCTPromiseRe
                       @"altitude":@(location.altitude),
                       @"aoiName":regeocode.AOIName?regeocode.AOIName:[NSNull null],
                       @"bearing":@(location.course),
-                      @"buildingId":regeocode.building?regeocode.building:[NSNull null],
                       @"city":regeocode.city?regeocode.city:[NSNull null],
                       @"cityCode":regeocode.citycode?regeocode.citycode:[NSNull null],
                       @"country":regeocode.country?regeocode.country:[NSNull null],
@@ -160,6 +164,118 @@ RCT_EXPORT_METHOD(poiSearch:(NSDictionary*)props resolver:(RCTPromiseResolveBloc
     request.reject = reject;
     request.resolve = resolve;
     [self.searchApi AMapPOIKeywordsSearch:request];
+}
+
+RCT_EXPORT_METHOD(callAMapRoute:(NSDictionary*)props){
+    NSURLComponents *urlBuilder;
+    if ([[UIApplication sharedApplication]canOpenURL:[NSURL URLWithString:@"iosamap://"]]) {
+        urlBuilder = [NSURLComponents componentsWithString:@"iosamap://path"];
+        NSMutableArray *queryItems = [NSMutableArray arrayWithCapacity:props.count];
+        for (NSString * parameter in AMapRequiredParameters) {
+            if (![[props allKeys]containsObject:parameter]) {
+                NSLog(@"调起高德地图route必须参数%@未设置",parameter);
+                return;
+            }
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:parameter value:[props[parameter] description]]];
+        }
+        for (NSString * parameter in AMapOptionalParameters) {
+            if (![[props allKeys]containsObject:parameter]) {
+                continue;
+            }
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:parameter value:[props[parameter] description]]];
+        }
+        urlBuilder.queryItems = queryItems;
+    }else{
+        urlBuilder = [NSURLComponents componentsWithString:@"http://uri.amap.com/navigation"];
+        NSMutableArray *queryItems = [NSMutableArray arrayWithCapacity:props.count];
+        for (NSString * parameter in AMapRequiredParameters) {
+            if (![[props allKeys]containsObject:parameter]) {
+                NSLog(@"调起高德地图route必须参数%@未设置",parameter);
+                return;
+            }
+        }
+        if ([props.allKeys containsObject:@"slat"] && [props.allKeys containsObject:@"slon"]) {
+            NSString *from = [NSString stringWithFormat:@"%@,%@",props[@"slon"],props[@"slat"]];
+            if ([props.allKeys containsObject:@"sname"]) {
+                from = [NSString stringWithFormat:@"%@,%@",from,props[@"sname"]];
+            }
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:@"from" value:from]];
+        }
+        NSString *to = [NSString stringWithFormat:@"%@,%@",props[@"dlon"],props[@"dlat"]];
+        if ([props.allKeys containsObject:@"dname"]) {
+            to = [NSString stringWithFormat:@"%@,%@",to,props[@"dname"]];
+        }
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:@"to" value:to]];
+        NSInteger dev = [RCTConvert NSInteger:props[@"dev"]];
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:@"coordinate" value:dev==0?@"gaode":@"wgs84"]];
+        NSString *mode;
+        switch ([RCTConvert NSInteger:props[@"t"]]) {
+            case 0:
+                mode = @"car";
+                break;
+            case 1:
+                mode = @"bus";
+                break;
+            case 2:
+                mode = @"walk";
+                break;
+            case 3:
+                mode = @"ride";
+                break;
+            default:
+                break;
+        }
+        if (mode) {
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:@"mode" value:mode]];
+        }
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:@"src" value:[RCTConvert NSString:props[@"sourceApplication"]]]];
+        urlBuilder.queryItems = queryItems;
+    }
+    NSLog(@"调起高德地图route->%@",urlBuilder.URL);
+    if ([[UIDevice currentDevice].systemVersion intValue]>10) {
+        [[UIApplication sharedApplication] openURL:urlBuilder.URL options:@{} completionHandler:^(BOOL success) {
+            
+        }];
+    }else{
+        [[UIApplication sharedApplication] openURL:urlBuilder.URL];
+    }
+}
+
+RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
+    NSURLComponents *urlBuilder;
+    NSMutableArray *queryItems = [NSMutableArray arrayWithCapacity:props.count];
+    if ([[UIApplication sharedApplication]canOpenURL:[NSURL URLWithString:@"baidumap://"]]) {
+        urlBuilder = [NSURLComponents componentsWithString:@"baidumap://map/direction"];
+    }else{
+        urlBuilder = [NSURLComponents componentsWithString:@"http://api.map.baidu.com/direction"];
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:@"output" value:@"html"]];
+    }
+    if (![props.allKeys containsObject:@"destination"]&&![props.allKeys containsObject:@"origin"]) {
+        NSLog(@"调起百度地图route必须设置起点或终点");
+        return;
+    }
+    for (NSString *parameter in baiduMapRequiredParameters) {
+        if ([props.allKeys containsObject:parameter]) {
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:parameter value:[props[parameter] description]]];
+        }else{
+            NSLog(@"调起百度地图route必须设置%@参数",parameter);
+            return;
+        }
+    }
+    for (NSString *parameter in baiduMapOptionalParameters) {
+        if ([props.allKeys containsObject:parameter]) {
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:parameter value:[props[parameter] description]]];
+        }
+    }
+    urlBuilder.queryItems = queryItems;
+    NSLog(@"调起百度地图route->%@",urlBuilder.URL);
+    if ([[UIDevice currentDevice].systemVersion intValue]>10) {
+        [[UIApplication sharedApplication] openURL:urlBuilder.URL options:@{} completionHandler:^(BOOL success) {
+            
+        }];
+    }else{
+        [[UIApplication sharedApplication] openURL:urlBuilder.URL];
+    }
 }
 
 #pragma mark AMapNaviDriveManagerDelegate

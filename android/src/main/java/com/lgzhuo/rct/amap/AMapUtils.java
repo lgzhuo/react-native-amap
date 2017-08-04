@@ -1,5 +1,8 @@
 package com.lgzhuo.rct.amap;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.TextureView;
@@ -256,5 +259,14 @@ class AMapUtils {
         WritableArray cnvArr(Collection<T> collection);
 
         List<T> cnvArr(ReadableArray array);
+    }
+
+    static boolean isAppInstalled(Context context, String packageName) {
+        try {
+            ApplicationInfo info = context.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+            return info != null;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 }

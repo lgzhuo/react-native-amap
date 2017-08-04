@@ -1,7 +1,8 @@
 package com.lgzhuo.rct.amap;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -9,7 +10,6 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.navi.AMapNavi;
 import com.amap.api.navi.AMapNaviListener;
-import com.amap.api.navi.AMapNaviView;
 import com.amap.api.navi.model.AMapLaneInfo;
 import com.amap.api.navi.model.AMapNaviCross;
 import com.amap.api.navi.model.AMapNaviInfo;
@@ -22,7 +22,6 @@ import com.amap.api.navi.model.AimLessModeStat;
 import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
 import com.amap.api.services.core.AMapException;
-import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.autonavi.tbt.NaviStaticInfo;
@@ -37,6 +36,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.lgzhuo.rct.amap.helper.ReadableMapWrapper;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,10 +72,11 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
     @Override
     public void onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy();
-        if (this.mNavi!=null){
+        if (this.mNavi != null) {
             this.mNavi.removeAMapNaviListener(this);
             this.mNavi.destroy();
             this.mNavi = null;
+            TTSController.destroy();
         }
     }
 
@@ -143,6 +144,7 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
                 if (mNavi == null) {
                     mNavi = AMapNavi.getInstance(getReactApplicationContext());
                     mNavi.addAMapNaviListener(this);
+                    mNavi.addAMapNaviListener(TTSController.getInstance(getReactApplicationContext()));
                 }
             }
         }
@@ -215,6 +217,119 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
                 }
             }
         });
+    }
+
+
+    private static String[] amapRequiredParameters = new String[]{"sourceApplication", "dlat", "dlon", "dev", "t"};
+    private static String[] amapOptionalParameters = new String[]{"sid", "slat", "slon", "sname", "did", "dname"};
+
+    /**
+     * 调起高德地图进行路径规划，未安装高德app时唤起H5页面
+     *
+     * @param props 参数同http://lbs.amap.com/api/amap-mobile/guide/android/route
+     */
+    @ReactMethod
+    public void callAMapRoute(ReadableMap props) {
+        if (AMapUtils.isAppInstalled(getReactApplicationContext(), "com.autonavi.minimap")) {
+            Uri.Builder dataBuilder = new Uri.Builder().scheme("amapuri").authority("route").appendPath("plan");
+            dataBuilder.appendQueryParameter("sourceApplication", props.getString("sourceApplication"));
+            for (String parameter : amapRequiredParameters) {
+                if (!props.hasKey(parameter)) {
+                    Log.w("AMapService", "调起高德地图必须参数" + parameter + "未设置");
+                    return;
+                }
+                dataBuilder.appendQueryParameter(parameter, props.getDynamic(parameter).asString());
+            }
+            for (String parameter : amapOptionalParameters) {
+                if (!props.hasKey(parameter)) {
+                    continue;
+                }
+                dataBuilder.appendQueryParameter(parameter, props.getDynamic(parameter).asString());
+            }
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            intent.setData(dataBuilder.build());
+            intent.setPackage("com.autonavi.minimap");
+            getReactApplicationContext().startActivity(intent);
+        } else {
+            Uri.Builder urlBuilder = new Uri.Builder().scheme("http").authority("uri.amap.com").path("navigation");
+            for (String parameter : amapRequiredParameters) {
+                if (!props.hasKey(parameter)) {
+                    Log.w("AMapService", "调起高德地图必须参数" + parameter + "未设置");
+                    return;
+                }
+            }
+            if (props.hasKey("slat") && props.hasKey("slon")) {
+                StringBuilder from = new StringBuilder(props.getString(props.getDynamic("slon").asString())).append(",").append(props.getDynamic("slat").asString());
+                if (props.hasKey("sname")) {
+                    from.append(",").append(props.getDynamic("sname").asString());
+                }
+                urlBuilder.appendQueryParameter("from", from.toString());
+            }
+            StringBuilder to = new StringBuilder(props.getString(props.getDynamic("dlon").asString())).append(",").append(props.getDynamic("dlat").asString());
+            if (props.hasKey("dname")) {
+                to.append(",").append(props.getDynamic("dname").asString());
+            }
+            urlBuilder.appendQueryParameter("to", to.toString());
+            int dev = props.getDynamic("dev").asInt();
+            urlBuilder.appendQueryParameter("coordinate", dev == 0 ? "gaode" : "wgs84");
+            int t = props.getDynamic("t").asInt();
+            String mode = null;
+            switch (t) {
+                case 0:
+                    mode = "car";
+                    break;
+                case 1:
+                    mode = "bus";
+                    break;
+                case 2:
+                    mode = "walk";
+                    break;
+                case 3:
+                    mode = "ride";
+                    break;
+            }
+            if (mode != null) {
+                urlBuilder.appendQueryParameter("mode", mode);
+            }
+            urlBuilder.appendQueryParameter("src", props.getString("sourceApplication"));
+            try {
+                getReactApplicationContext().startActivity(Intent.parseUri(urlBuilder.toString(), 0));
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static String[] baiduMapOptionalParameters = new String[]{"destination", "origin", "mode", "region", "origin_region", "destination_region", "sy", "index", "target", "coord_type", "zoom", "src"};
+
+    /**
+     * 调起百度地图进行路径规划，未安装百度app时唤起H5页面
+     *
+     * @param props 同http://lbsyun.baidu.com/index.php?title=uri/api/android 和 http://lbsyun.baidu.com/index.php?title=uri/api/web
+     */
+    @ReactMethod
+    public void callBaiduMapRoute(ReadableMap props) {
+        Uri.Builder uriBuilder;
+        if (AMapUtils.isAppInstalled(getReactApplicationContext(), "com.baidu.BaiduMap")) {
+            uriBuilder = new Uri.Builder().scheme("baidumap").authority("map").path("direction");
+        } else {
+            uriBuilder = new Uri.Builder().scheme("http").authority("api.map.baidu.com").path("direction").appendQueryParameter("mode", "driving").appendQueryParameter("output", "html");
+        }
+        if (props.hasKey("destination") && props.hasKey("origin")) {
+            Log.w("AMapService", "调起百度地图route必须设施起点或终点");
+            return;
+        }
+        for (String parameter : baiduMapOptionalParameters) {
+            if (!props.hasKey(parameter)) {
+                continue;
+            }
+            uriBuilder.appendQueryParameter(parameter, props.getDynamic(parameter).asString());
+        }
+        Intent intent = new Intent();
+        intent.setData(uriBuilder.build());
+        getReactApplicationContext().startActivity(intent);
     }
 
     /* AMapNaviListener */
