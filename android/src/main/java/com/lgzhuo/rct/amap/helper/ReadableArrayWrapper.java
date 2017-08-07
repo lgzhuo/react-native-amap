@@ -5,6 +5,8 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableType;
 
+import java.util.ArrayList;
+
 /**
  * Created by lgzhuo on 2017/4/13.
  */
@@ -59,6 +61,11 @@ public class ReadableArrayWrapper implements ReadableArray {
     @Override
     public ReadableType getType(int index) {
         return isNull(index) ? ReadableType.Null : array.getType(index);
+    }
+
+    @Override
+    public ArrayList<Object> toArrayList() {
+        return array == null ? null : array.toArrayList();
     }
 
     @Override

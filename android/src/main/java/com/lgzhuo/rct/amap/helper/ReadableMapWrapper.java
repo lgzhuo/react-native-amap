@@ -6,6 +6,8 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableType;
 
+import java.util.HashMap;
+
 /**
  * Created by lgzhuo on 2017/4/13.
  */
@@ -66,6 +68,11 @@ public class ReadableMapWrapper implements ReadableMap {
     @Override
     public ReadableMapKeySetIterator keySetIterator() {
         return map == null ? NONE_KEY_SET_ITERATOR : map.keySetIterator();
+    }
+
+    @Override
+    public HashMap<String, Object> toHashMap() {
+        return map == null ? null : map.toHashMap();
     }
 
     @Override
