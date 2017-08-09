@@ -6,6 +6,7 @@ import AMapCallout from './map/AMapCallout'
 import AMapMarker from './map/AMapMarker'
 import AMapPolyline from './map/AMapPolyline'
 import AMapService from './map/AMapService'
-const ARTContainer = require('./map/ARTContainer');
 
-export {AMap as default, AMap, AMapCallout, AMapMarker, AMapPolyline, AMapService, ARTContainer};
+import AMapLocation from './map/AMapLocation'
+
+export {AMap as default, AMap, AMapCallout, AMapMarker, AMapPolyline, AMapService, AMapLocation};
