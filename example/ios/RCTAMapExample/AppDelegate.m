@@ -17,7 +17,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [AMapServices sharedServices].apiKey = @"86179e5a2eb34188befdd7d8c08f6ea6";
+  [AMapServices sharedServices].apiKey = @"182f934c94520d743fe15d131fcc7f1c";
   NSURL *jsCodeLocation;
 
   jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];

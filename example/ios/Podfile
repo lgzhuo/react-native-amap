@@ -14,7 +14,8 @@ target 'RCTAMapExample' do
     'RCTSettings',
     'RCTText',
     'RCTVibration',
-    'RCTWebSocket'
+    'RCTWebSocket',
+    'BatchedBridge'
   ]
 
   pod 'AMap3DMap-NO-IDFA', '4.6.0'

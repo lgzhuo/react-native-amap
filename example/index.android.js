@@ -5,6 +5,6 @@
  */
 
 import {AppRegistry} from 'react-native';
-import App from './js/App'
+import Navigator from './js/Navigator'
 
-AppRegistry.registerComponent('RCTAMapExample', () => App);
+AppRegistry.registerComponent('RCTAMapExample', () => Navigator);

@@ -146,6 +146,14 @@ static NSDictionary<NSString *, id> *RCTLocationEvent(CLLocation *location, AMap
     NSMutableArray<OnceLocationRequest *> *_pendingRequests;
     AMapLocationOptions _observerOptions;
 }
+
+#pragma mark - overide
+
+- (NSArray<NSString *> *)supportedEvents{
+    return @[@"AMapLocationDidChange", @"AMapLocationError"];
+}
+
+#pragma mark - RCT export
     
 RCT_EXPORT_MODULE()
 

@@ -9,10 +9,35 @@
 #import "AMapViewManager.h"
 #import "AMapView.h"
 #import <React/RCTUIManager.h>
-#import <React/RCTConvert+MapKit.h>
 #import "RCTConvert+MAMap.h"
 #import "AMapMarker.h"
 #import "AMapPolyline.h"
+
+@implementation RCTConvert(MapKit)
+
++ (MKCoordinateSpan)MKCoordinateSpan:(id)json
+{
+    json = [self NSDictionary:json];
+    return (MKCoordinateSpan){
+        [self CLLocationDegrees:json[@"latitudeDelta"]],
+        [self CLLocationDegrees:json[@"longitudeDelta"]]
+    };
+}
+
++ (MKCoordinateRegion)MKCoordinateRegion:(id)json
+{
+    return (MKCoordinateRegion){
+        [self CLLocationCoordinate2D:json],
+        [self MKCoordinateSpan:json]
+    };
+}
+
+RCT_ENUM_CONVERTER(MKMapType, (@{
+                                 @"standard": @(MKMapTypeStandard),
+                                 @"satellite": @(MKMapTypeSatellite),
+                                 @"hybrid": @(MKMapTypeHybrid),
+                                 }), MKMapTypeStandard, integerValue)
+@end
 
 @interface AMapViewManager ()<MAMapViewDelegate>
 
@@ -118,7 +143,7 @@ RCT_EXPORT_METHOD(fitCoordinates:(nonnull NSNumber *)reactTag
                   animated:(BOOL)animated)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        AMapView *view = viewRegistry[reactTag];
+        UIView *view = viewRegistry[reactTag];
         if (![view isKindOfClass:[AMapView class]]) {
             RCTLogError(@"Cannot find AMapView with tag #%@", reactTag);
             return;
@@ -138,7 +163,7 @@ RCT_EXPORT_METHOD(fitCoordinates:(nonnull NSNumber *)reactTag
         CGFloat bottom = [RCTConvert CGFloat:edgePadding[@"bottom"]];
         CGFloat left = [RCTConvert CGFloat:edgePadding[@"left"]];
         
-        [view setVisibleMapRect:polyline.boundingMapRect edgePadding:UIEdgeInsetsMake(top, left, bottom, right) animated:animated];
+        [(AMapView*)view setVisibleMapRect:polyline.boundingMapRect edgePadding:UIEdgeInsetsMake(top, left, bottom, right) animated:animated];
     }];
 }
 

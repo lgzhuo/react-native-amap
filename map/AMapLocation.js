@@ -19,7 +19,9 @@ type AMapLocationOptions = {
     needAddress: bool
 }
 
-export default {
+const logError = error => console.debug('AMapLocation error', error);
+
+const LocationObserver = {
 
     /*
    * Invokes the success callback once with the latest location info.  Supported
@@ -27,11 +29,11 @@ export default {
    * On Android, if the location is cached this can return almost immediately,
    * or it will request an update which might take a while.
    */
-    getCurrentPosition: async function (geo_success: Function,
-                                        geo_error?: Function,
-                                        geo_options?: AMapLocationOptions) {
+    getCurrentPosition: async function (success: Function,
+                                        error?: Function,
+                                        options?: AMapLocationOptions) {
         invariant(
-            typeof geo_success === 'function',
+            typeof success === 'function',
             'Must provide a valid geo_success callback.'
         );
         let hasPermission = true;
@@ -50,9 +52,9 @@ export default {
         }
         if (hasPermission) {
             AMapLocationObserver.getCurrentPosition(
-                geo_options || {},
-                geo_success,
-                geo_error || logError,
+                options || {},
+                success,
+                error || logError,
             );
         }
     },
@@ -61,7 +63,7 @@ export default {
    * Invokes the success callback whenever the location changes.  Supported
    * options: timeout (ms), maximumAge (ms), enableHighAccuracy (bool), distanceFilter(m)
    */
-    watchPosition: function(success: Function, error?: Function, options?: AMapLocationOptions): number {
+    watchPosition: function (success: Function, error?: Function, options?: AMapLocationOptions): number {
         if (!updatesEnabled) {
             AMapLocationObserver.startObserving(options || {});
             updatesEnabled = true;
@@ -80,7 +82,7 @@ export default {
         return watchID;
     },
 
-    clearWatch: function(watchID: number) {
+    clearWatch: function (watchID: number) {
         const sub = subscriptions[watchID];
         if (!sub) {
             // Silently exit when the watchID is invalid or already cleared
@@ -90,7 +92,8 @@ export default {
 
         sub[0].remove();
         // array element refinements not yet enabled in Flow
-        const sub1 = sub[1]; sub1 && sub1.remove();
+        const sub1 = sub[1];
+        sub1 && sub1.remove();
         subscriptions[watchID] = undefined;
         let noWatchers = true;
         for (let ii = 0; ii < subscriptions.length; ii++) {
@@ -99,11 +102,11 @@ export default {
             }
         }
         if (noWatchers) {
-            Geolocation.stopObserving();
+            LocationObserver.stopObserving();
         }
     },
 
-    stopObserving: function() {
+    stopObserving: function () {
         if (updatesEnabled) {
             AMapLocationObserver.stopObserving();
             updatesEnabled = false;
@@ -113,10 +116,13 @@ export default {
                     warning('Called stopObserving with existing subscriptions.');
                     sub[0].remove();
                     // array element refinements not yet enabled in Flow
-                    const sub1 = sub[1]; sub1 && sub1.remove();
+                    const sub1 = sub[1];
+                    sub1 && sub1.remove();
                 }
             }
             subscriptions = [];
         }
     }
-}
+};
+
+export default LocationObserver

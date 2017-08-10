@@ -1,8 +1,9 @@
 /**
  * Created by lgzhuo on 2017/3/9.
  */
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {requireNativeComponent, StyleSheet, UIManager, findNodeHandle} from 'react-native'
+import PropTypes from 'prop-types'
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
 const NativeAMapMarker = requireNativeComponent('AMapMarker', AMapMarker, {
     nativeOnly: {

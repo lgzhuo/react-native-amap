@@ -1,8 +1,9 @@
 /**
  * Created by lgzhuo on 2017/3/16.
  */
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {requireNativeComponent} from 'react-native'
+import PropTypes from 'prop-types'
 const NativeAMapPolyline = requireNativeComponent('AMapPolyline', AMapPolyline);
 
 export default class AMapPolyline extends Component {

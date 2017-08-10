@@ -1,8 +1,9 @@
 /**
  * Created by lgzhuo on 2017/3/14.
  */
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {requireNativeComponent, StyleSheet} from 'react-native'
+import PropTypes from 'prop-types'
 const NativeAMapCallout = requireNativeComponent('AMapCallout', AMapCallout);
 
 export default class AMapCallout extends Component {

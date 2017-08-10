@@ -1,8 +1,9 @@
 /**
  * Created by lgzhuo on 2017/3/7.
  */
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {requireNativeComponent, View, StyleSheet, UIManager, findNodeHandle, PixelRatio, Platform} from 'react-native'
+import PropTypes from 'prop-types'
 import AMapCallout from './AMapCallout'
 import AMapMarker from './AMapMarker'
 import AMapPolyline from './AMapPolyline'

@@ -10,7 +10,7 @@ import {
     Alert
 } from 'react-native';
 import AMap,{AMapMarker,AMapService,AMapPolyline,AMapCallout} from 'react-native-amap'
-import CustomCallout from './CustomCallout'
+import CustomCallout from '../CustomCallout'
 
 let clusterData = [];
 for (let i=0;i<100;i++){
@@ -20,7 +20,9 @@ for (let i=0;i<100;i++){
     })
 }
 
-export default class App extends Component {
+export class Map extends Component {
+
+    static FeatureName = '地图';
 
     state = {
         clustered:[],

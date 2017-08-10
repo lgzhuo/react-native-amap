@@ -25,7 +25,4 @@
 
 + (MACoordinateSpan)MACoordinateSpan:(id)json;
 + (MACoordinateRegion)MACoordinateRegion:(id)json;
-
-+ (MACoordinateSpan)MACoordinateSpan:(id)json;
-+ (MACoordinateRegion)MACoordinateRegion:(id)json;
 @end
