@@ -17,7 +17,7 @@ import java.util.List;
 public class AMapPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Collections.<NativeModule>singletonList(new AMapService(reactContext));
+        return Arrays.<NativeModule>asList(new AMapService(reactContext), new AMapLocationModule(reactContext));
     }
 
     @Override
