@@ -29,7 +29,7 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
         public void onLocationChanged(AMapLocation aMapLocation) {
             if (aMapLocation.getErrorCode() == AMapLocation.LOCATION_SUCCESS) {
                 getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                        .emit("AMapLocationDidChange", locationToMap(aMapLocation));
+                        .emit("AMapLocationDidChange", locationToMap(aMapLocation, mWatchedOption.needAddress));
             } else {
                 emitError(buildPositionError(aMapLocation.getErrorCode(), aMapLocation.getErrorInfo()));
             }
@@ -54,7 +54,7 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
         AMapLocationManager locationManager = AMapLocationManager.getInstance(getReactApplicationContext());
         AMapLocation location = locationManager.getLastKnownLocation();
         if (location != null && location.getErrorCode() == AMapLocation.LOCATION_SUCCESS && SystemClock.currentTimeMillis() - location.getTime() < locationOptions.maximumAge && (!locationOptions.needAddress || !TextUtils.isEmpty(location.getAddress()))) {
-            success.invoke(locationToMap(location));
+            success.invoke(locationToMap(location, locationOptions.needAddress));
             return;
         }
         new SingleUpdateRequest(locationManager, locationOptions, success, error).invoke();
@@ -81,7 +81,7 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
                 .emit("AMapLocationError", error);
     }
 
-    private static WritableMap locationToMap(AMapLocation location) {
+    private static WritableMap locationToMap(AMapLocation location, boolean widthAddress) {
         WritableMap map = Arguments.createMap();
         WritableMap coords = Arguments.createMap();
         coords.putDouble("latitude", location.getLatitude());
@@ -97,23 +97,28 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
         if (android.os.Build.VERSION.SDK_INT >= 18) {
             map.putBoolean("mocked", location.isFromMockProvider());
         }
-        map.putString("adCode", location.getAdCode());
-        map.putString("address", location.getAddress());
-        map.putString("aoiName", location.getAoiName());
-        map.putString("buildingId", location.getBuildingId());
-        map.putString("city", location.getCity());
-        map.putString("cityCode", location.getCityCode());
-        map.putString("country", location.getCountry());
-        map.putString("district", location.getDistrict());
-        map.putString("floor", location.getFloor());
-        map.putInt("gpsAccuracyStatus", location.getGpsAccuracyStatus());
-        map.putString("locationDetail", location.getLocationDetail());
-        map.putInt("locationType", location.getLocationType());
-        map.putString("poiName", location.getPoiName());
-        map.putString("provider", location.getProvider());
-        map.putString("province", location.getProvince());
-        map.putString("street", location.getStreet());
-        map.putString("streetNum", location.getStreetNum());
+        if (widthAddress) {
+            WritableMap regeocode = Arguments.createMap();
+            regeocode.putString("adCode", location.getAdCode());
+            regeocode.putString("address", location.getAddress());
+            regeocode.putString("aoiName", location.getAoiName());
+            regeocode.putString("buildingId", location.getBuildingId());
+            regeocode.putString("city", location.getCity());
+            regeocode.putString("cityCode", location.getCityCode());
+            regeocode.putString("country", location.getCountry());
+            regeocode.putString("district", location.getDistrict());
+            regeocode.putString("floor", location.getFloor());
+            regeocode.putInt("gpsAccuracyStatus", location.getGpsAccuracyStatus());
+            regeocode.putString("locationDetail", location.getLocationDetail());
+            regeocode.putInt("locationType", location.getLocationType());
+            regeocode.putString("poiName", location.getPoiName());
+            regeocode.putString("provider", location.getProvider());
+            regeocode.putString("province", location.getProvince());
+            regeocode.putString("street", location.getStreet());
+            regeocode.putString("streetNum", location.getStreetNum());
+
+            map.putMap("regeocode", regeocode);
+        }
 
         return map;
     }
@@ -203,7 +208,7 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
                 synchronized (SingleUpdateRequest.this) {
                     if (!mTriggered) {
                         if (aMapLocation.getErrorCode() == AMapLocation.LOCATION_SUCCESS) {
-                            mSuccess.invoke(locationToMap(aMapLocation));
+                            mSuccess.invoke(locationToMap(aMapLocation, mOptions.needAddress));
                         } else {
                             mError.invoke(buildPositionError(aMapLocation.getErrorCode(), aMapLocation.getErrorInfo()));
                         }

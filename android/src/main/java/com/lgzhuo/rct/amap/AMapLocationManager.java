@@ -26,6 +26,7 @@ import java.util.Map;
 public class AMapLocationManager implements AMapLocationListener {
 
     private static volatile AMapLocationManager sInstance;
+    private static AMapLocationManagerListener sListener;
 
     public static AMapLocationManager getInstance(Context context) {
         if (sInstance == null) {
@@ -49,11 +50,16 @@ public class AMapLocationManager implements AMapLocationListener {
         }
     }
 
+    public static void setManagerListener(AMapLocationManagerListener listener) {
+        sListener = listener;
+    }
+
     private AMapLocationClient mClient;
     private Map<AMapLocationListener, AMapLocationClientOption> mListenerMap;
     private Map<AMapLocationListener, AMapLocationClientOption> mOnceRequestListenerMap;
     private HandlerThread mWorkThread;
     private Handler mHandler;
+    private Handler mListenerHandler;
 
     private AMapLocationManager(Context context) {
         mClient = new AMapLocationClient(context);
@@ -64,6 +70,7 @@ public class AMapLocationManager implements AMapLocationListener {
         mWorkThread = new HandlerThread("AMapLocationManager work thread");
         mWorkThread.start();
         mHandler = new WorkHandler(mWorkThread.getLooper());
+        mListenerHandler = new ListenerHandler(Looper.getMainLooper());
     }
 
     /* public api */
@@ -98,15 +105,20 @@ public class AMapLocationManager implements AMapLocationListener {
     private void onListenerChange() {
         if (mListenerMap.isEmpty() && mOnceRequestListenerMap.isEmpty()) {
             mClient.stopLocation();
+            mListenerHandler.obtainMessage(MSG_WATCH_STOP).sendToTarget();
         } else {
+            boolean onStart = true;
             if (mClient.isStarted()) {
                 mClient.stopLocation();
+                onStart = false;
             }
             List<AMapLocationClientOption> options = new ArrayList<>(mListenerMap.size() + mOnceRequestListenerMap.size());
             options.addAll(mListenerMap.values());
             options.addAll(mOnceRequestListenerMap.values());
-            mClient.setLocationOption(mergeOptions(options));
+            AMapLocationClientOption option = mergeOptions(options);
+            mClient.setLocationOption(option);
             mClient.startLocation();
+            mListenerHandler.obtainMessage(onStart ? MSG_WATCH_START : MSG_WATCH_CHANGE, option).sendToTarget();
         }
     }
 
@@ -224,5 +236,45 @@ public class AMapLocationManager implements AMapLocationListener {
         static ListenerPair create(AMapLocationListener listener, AMapLocationClientOption option) {
             return new ListenerPair(listener, option);
         }
+    }
+
+    private static final int MSG_WATCH_START = 0;
+    private static final int MSG_WATCH_CHANGE = 1;
+    private static final int MSG_WATCH_STOP = 2;
+
+    private static class ListenerHandler extends Handler {
+
+        ListenerHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_WATCH_START:
+                    if (sListener != null) {
+                        sListener.onWatchStart((AMapLocationClientOption) msg.obj);
+                    }
+                    break;
+                case MSG_WATCH_CHANGE:
+                    if (sListener != null) {
+                        sListener.onWatchChange((AMapLocationClientOption) msg.obj);
+                    }
+                    break;
+                case MSG_WATCH_STOP:
+                    if (sListener != null) {
+                        sListener.onWatchStop();
+                    }
+                    break;
+            }
+        }
+    }
+
+    public interface AMapLocationManagerListener {
+        void onWatchStart(AMapLocationClientOption option);
+
+        void onWatchChange(AMapLocationClientOption option);
+
+        void onWatchStop();
     }
 }

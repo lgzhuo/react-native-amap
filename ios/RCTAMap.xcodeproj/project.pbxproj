@@ -25,6 +25,7 @@
 		778ECF2B1F2B5D2900D1DA58 /* QuadTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF171F2B5D2900D1DA58 /* QuadTree.m */; };
 		778ECF2C1F2B5D2900D1DA58 /* RCTConvert+MAMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF191F2B5D2900D1DA58 /* RCTConvert+MAMap.m */; };
 		778ECF2D1F2B5D2900D1DA58 /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF1B1F2B5D2900D1DA58 /* SMCalloutView.m */; };
+		77FC722E1F4170810057936A /* AMapLocationObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 77FC722D1F4170810057936A /* AMapLocationObserver.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -77,6 +78,8 @@
 		778ECF1A1F2B5D2900D1DA58 /* SMCalloutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMCalloutView.h; sourceTree = "<group>"; };
 		778ECF1B1F2B5D2900D1DA58 /* SMCalloutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCalloutView.m; sourceTree = "<group>"; };
 		779B2C2F1E9B1C160028CBE6 /* libRCTAMap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTAMap.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		77FC722C1F4170810057936A /* AMapLocationObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapLocationObserver.h; sourceTree = "<group>"; };
+		77FC722D1F4170810057936A /* AMapLocationObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapLocationObserver.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +102,8 @@
 				778ECEFB1F2B5D2900D1DA58 /* AMapCalloutManager.m */,
 				778ECEFC1F2B5D2900D1DA58 /* AMapCoordinate.h */,
 				778ECEFD1F2B5D2900D1DA58 /* AMapCoordinate.m */,
+				77FC722C1F4170810057936A /* AMapLocationObserver.h */,
+				77FC722D1F4170810057936A /* AMapLocationObserver.m */,
 				778ECEFE1F2B5D2900D1DA58 /* AMapMarker.h */,
 				778ECEFF1F2B5D2900D1DA58 /* AMapMarker.m */,
 				778ECF001F2B5D2900D1DA58 /* AMapMarkerManager.h */,
@@ -218,6 +223,7 @@
 				778ECF291F2B5D2900D1DA58 /* Convert2Json.m in Sources */,
 				778ECF1D1F2B5D2900D1DA58 /* AMapCalloutManager.m in Sources */,
 				778ECF221F2B5D2900D1DA58 /* AMapPolyline.m in Sources */,
+				77FC722E1F4170810057936A /* AMapLocationObserver.m in Sources */,
 				778ECF2C1F2B5D2900D1DA58 /* RCTConvert+MAMap.m in Sources */,
 				778ECF231F2B5D2900D1DA58 /* AMapPolylineManager.m in Sources */,
 				778ECF1E1F2B5D2900D1DA58 /* AMapCoordinate.m in Sources */,
@@ -270,7 +276,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../ios/Pods/**";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -311,7 +317,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../ios/Pods/**";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

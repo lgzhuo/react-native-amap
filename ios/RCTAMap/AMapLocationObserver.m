@@ -43,13 +43,18 @@ typedef struct {
 @implementation AMapLocationReGeocode (AMapLocationEvent)
 
 - (NSDictionary<NSString *, id> *) event{
+    
     return @{@"adCode":self.adcode?:[NSNull null],
              @"address":self.formattedAddress?:[NSNull null],
              @"aoiName":self.AOIName?:[NSNull null],
              @"city":self.city?:[NSNull null],
              @"cityCode":self.citycode?:[NSNull null],
              @"country":self.country?:[NSNull null],
-             @"district":self.district?:[NSNull null]};
+             @"district":self.district?:[NSNull null],
+             @"poiName":self.POIName?:[NSNull null],
+             @"province":self.province?:[NSNull null],
+             @"street":self.street?:[NSNull null],
+             @"streetNum":self.number?:[NSNull null]};
 }
 
 @end
@@ -95,6 +100,7 @@ static NSDictionary<NSString *, id> *RCTLocationEvent(CLLocation *location, AMap
                      @"altitudeAccuracy": @(location.verticalAccuracy),
                      @"heading": @(location.course),
                      @"speed": @(location.speed),
+                     @"bearing": @(location.course)
                      },
              @"timestamp": @([location.timestamp timeIntervalSince1970] * 1000), // in ms
              @"regeocode":[regeocode event]?:[NSNull null]
