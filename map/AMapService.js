@@ -111,7 +111,9 @@ export type POISearchResponse = {
     location: LatLng,
     title: string
 }
-export type StartNaviProps = {}
+export type StartNaviProps = {
+    id?:number
+}
 
 // http://lbs.amap.com/api/amap-mobile/guide/ios/route
 // http://lbs.amap.com/api/amap-mobile/guide/android/route

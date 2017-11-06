@@ -9,6 +9,8 @@ import com.amap.api.navi.AMapNavi;
 import com.amap.api.navi.AMapNaviListener;
 import com.amap.api.navi.AMapNaviView;
 import com.amap.api.navi.AMapNaviViewListener;
+import com.amap.api.navi.enums.NaviTTSType;
+import com.amap.api.navi.enums.NaviType;
 import com.amap.api.navi.model.AMapLaneInfo;
 import com.amap.api.navi.model.AMapNaviCross;
 import com.amap.api.navi.model.AMapNaviInfo;
@@ -46,9 +48,9 @@ public class RouteNaviActivity extends Activity implements AMapNaviListener, AMa
         mAMapNavi.setEmulatorNaviSpeed(60);
         boolean gps = getIntent().getBooleanExtra("gps", false);
         if (gps) {
-            mAMapNavi.startNavi(AMapNavi.GPSNaviMode);
+            mAMapNavi.startNavi(NaviType.GPS);
         } else {
-            mAMapNavi.startNavi(AMapNavi.EmulatorNaviMode);
+            mAMapNavi.startNavi(NaviType.EMULATOR);
         }
 
 
@@ -76,6 +78,7 @@ public class RouteNaviActivity extends Activity implements AMapNaviListener, AMa
         super.onDestroy();
         mAMapNaviView.onDestroy();
         mAMapNavi.stopNavi();
+        mAMapNavi.removeAMapNaviListener(this);
         /**
          * 当前页面不销毁AmapNavi对象。
          * 因为可能会返回到RestRouteShowActivity页面再次进行路线选择，然后再次进来导航。

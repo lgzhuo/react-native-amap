@@ -1,6 +1,7 @@
 package com.lgzhuo.rct.amap;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
@@ -189,9 +190,10 @@ class AMapUtils {
         }
     };
 
-    static WritableMap cnvAMapNaviPath(AMapNaviPath path, int id) {
+    static WritableMap cnvAMapNaviPath(AMapNaviPath path, Integer id) {
         WritableMap pathMap = AMapNaviPathConvert.cnv(path);
-        pathMap.putInt("id", id);
+        if (id != null)
+            pathMap.putInt("id", id);
         return pathMap;
     }
 

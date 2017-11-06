@@ -155,6 +155,8 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
     public void startNavi(ReadableMap props) {
         Intent gpsintent = new Intent(getReactApplicationContext(), RouteNaviActivity.class);
         gpsintent.putExtra("gps", true);
+        if (props.hasKey("id"))
+            this.getNavi().selectRouteId(props.getInt("id"));
         gpsintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getReactApplicationContext().startActivity(gpsintent);
     }
@@ -339,7 +341,7 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
         if (mNaviRoutePromise != null) {
             AMapNaviPath path = mNavi.getNaviPath();
             WritableArray array = Arguments.createArray();
-            array.pushMap(AMapUtils.cnvAMapNaviPath(path, -1));
+            array.pushMap(AMapUtils.cnvAMapNaviPath(path, null));
             mNaviRoutePromise.resolve(array);
             mNaviRoutePromise = null;
         }

@@ -16,6 +16,7 @@
 #import <AMapLocationKit/AMapLocationKit.h>
 #import <AMapSearchKit/AMapSearchKit.h>
 #import <objc/runtime.h>
+#import "DriveNaviViewController.h"
 
 #define AMapRequiredParameters @[@"sourceApplication",@"dlat",@"dlon",@"dev",@"t"]
 #define AMapOptionalParameters @[@"sid",@"slat",@"slon",@"sname",@"did",@"dname"]
@@ -61,10 +62,11 @@
 
 @end
 
-@interface AMapService()<AMapNaviDriveManagerDelegate,AMapSearchDelegate>
+@interface AMapService()<AMapNaviDriveManagerDelegate,AMapSearchDelegate,DriveNaviViewControllerDelegate>
 @property(nonatomic,strong) AMapNaviDriveManager *naviDriveManager;
 @property(nonatomic,strong) AMapLocationManager *locationManager;
 @property(nonatomic,strong) AMapSearchAPI *searchApi;
+@property(nonatomic,readonly) UIViewController* rootVC;
 @end
 
 @implementation AMapService{
@@ -124,6 +126,24 @@ RCT_EXPORT_METHOD(calculateNaviDriveRoute:(NSDictionary*)props resolver:(RCTProm
   }else{
     reject(@"-5", @"导航线路规划失败", nil);
   }
+}
+
+RCT_EXPORT_METHOD(startNavi:(NSDictionary*)props){
+    
+    DriveNaviViewController *driveVC = [[DriveNaviViewController alloc] init];
+    [driveVC setDelegate:self];
+    
+    if ([props.allKeys containsObject:@"id"]) {
+        [self.naviDriveManager selectNaviRouteWithRouteID:[RCTConvert NSInteger:props[@"id"]]];
+    }
+    
+    //将driveView添加为导航数据的Representative，使其可以接收到导航诱导数据
+    [self.naviDriveManager addDataRepresentative:driveVC.driveView];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.rootVC presentViewController:driveVC animated:NO completion:nil];
+        [self.naviDriveManager startGPSNavi];
+    });
 }
 
 RCT_EXPORT_METHOD(getCurrentPosition:(NSDictionary*)props resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject){
@@ -298,9 +318,7 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
  */
 - (void)driveManagerOnCalculateRouteSuccess:(AMapNaviDriveManager *)driveManager{
     if (_naviDriveReject && _naviDriveResolve) {
-        if (driveManager.naviRoutes.count <=0) {
-            _naviDriveReject(@"-6", @"没有可用路线", nil);
-        }else{
+        if (driveManager.naviRoutes.count >0) {
             NSMutableArray *routeArr = [NSMutableArray arrayWithCapacity:driveManager.naviRoutes.count];
             for (NSNumber *aRouteID in [driveManager.naviRoutes allKeys]){
                 AMapNaviRoute *route = [driveManager.naviRoutes objectForKey:aRouteID];
@@ -309,6 +327,12 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
                 [routeArr addObject:[Convert2Json AMapNaviRoute:route]];
             }
             _naviDriveResolve(routeArr);
+        } else if (driveManager.naviRoute){
+            AMapNaviRoute *route = driveManager.naviRoute;
+            route.routeID = driveManager.naviRouteID;
+            _naviDriveResolve(@[[Convert2Json AMapNaviRoute:route]]);
+        } else{
+            _naviDriveReject(@"-6", @"没有可用路线", nil);
         }
         _naviDriveReject = nil;
         _naviDriveResolve = nil;
@@ -352,6 +376,17 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
     }
 }
 
+#pragma mark DriveNaviViewControllerDelegate
+- (void)driveNaviViewCloseButtonClicked{
+    //开始导航后不再允许选择路径，所以停止导航
+    [self.naviDriveManager stopNavi];
+    
+    //停止语音
+//    [[SpeechSynthesizer sharedSpeechSynthesizer] stopSpeak];
+    
+    [self.rootVC dismissViewControllerAnimated:NO completion:nil];
+}
+
 #pragma mark getter & setter
 -(AMapNaviDriveManager *)naviDriveManager{
   if (!_naviDriveManager) {
@@ -374,6 +409,15 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
         _searchApi.delegate = self;
     }
     return _searchApi;
+}
+
+- (UIViewController*) rootVC {
+    UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    while (root.presentedViewController != nil) {
+        root = root.presentedViewController;
+    }
+    
+    return root;
 }
 
 @end
