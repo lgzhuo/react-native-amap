@@ -138,6 +138,35 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
         }
     }
 
+    @ReactMethod
+    public void calculateNaviWalkRoute(ReadableMap props, Promise promise) {
+        if (props == null || !props.hasKey("to")) {
+            promise.reject("-2", "参数不完整");
+            return;
+        }
+        NaviLatLng to = AMapUtils.NaviLatLngConvert.cnv(props.getMap("to"));
+        NaviLatLng from = null;
+        if (props.hasKey("from")) {
+            from = AMapUtils.NaviLatLngConvert.cnv(props.getMap("from"));
+        }
+        //取消前一个路径规划
+        if (mNaviRoutePromise != null) {
+            mNaviRoutePromise.reject("-1", "有新的导航规划请求，当前路径规划已取消");
+            mNaviRoutePromise = null;
+        }
+        boolean resolve;
+        if (from != null) {
+            resolve = getNavi().calculateWalkRoute(from, to);
+        } else {
+            resolve = getNavi().calculateWalkRoute(to);
+        }
+        if (resolve) {
+            mNaviRoutePromise = promise;
+        } else {
+            promise.reject("-5", "导航线路规划失败");
+        }
+    }
+
     private AMapNavi getNavi() {
         if (mNavi == null) {
             synchronized (this) {
@@ -240,13 +269,13 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
                     Log.w("AMapService", "调起高德地图必须参数" + parameter + "未设置");
                     return;
                 }
-                dataBuilder.appendQueryParameter(parameter, props.getDynamic(parameter).asString());
+                dataBuilder.appendQueryParameter(parameter, props.getString(parameter));
             }
             for (String parameter : amapOptionalParameters) {
                 if (!props.hasKey(parameter)) {
                     continue;
                 }
-                dataBuilder.appendQueryParameter(parameter, props.getDynamic(parameter).asString());
+                dataBuilder.appendQueryParameter(parameter, props.getString(parameter));
             }
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -263,20 +292,20 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
                 }
             }
             if (props.hasKey("slat") && props.hasKey("slon")) {
-                StringBuilder from = new StringBuilder(props.getString(props.getDynamic("slon").asString())).append(",").append(props.getDynamic("slat").asString());
+                StringBuilder from = new StringBuilder(props.getString(props.getString("slon"))).append(",").append(props.getString("slat"));
                 if (props.hasKey("sname")) {
-                    from.append(",").append(props.getDynamic("sname").asString());
+                    from.append(",").append(props.getString("sname"));
                 }
                 urlBuilder.appendQueryParameter("from", from.toString());
             }
-            StringBuilder to = new StringBuilder(props.getString(props.getDynamic("dlon").asString())).append(",").append(props.getDynamic("dlat").asString());
+            StringBuilder to = new StringBuilder(props.getString(props.getString("dlon"))).append(",").append(props.getString("dlat"));
             if (props.hasKey("dname")) {
-                to.append(",").append(props.getDynamic("dname").asString());
+                to.append(",").append(props.getString("dname"));
             }
             urlBuilder.appendQueryParameter("to", to.toString());
-            int dev = props.getDynamic("dev").asInt();
+            int dev = props.getInt("dev");
             urlBuilder.appendQueryParameter("coordinate", dev == 0 ? "gaode" : "wgs84");
-            int t = props.getDynamic("t").asInt();
+            int t = props.getInt("t");
             String mode = null;
             switch (t) {
                 case 0:
@@ -320,14 +349,14 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
             uriBuilder = new Uri.Builder().scheme("http").authority("api.map.baidu.com").path("direction").appendQueryParameter("mode", "driving").appendQueryParameter("output", "html");
         }
         if (props.hasKey("destination") && props.hasKey("origin")) {
-            Log.w("AMapService", "调起百度地图route必须设施起点或终点");
+            Log.w("AMapService", "调起百度地图route必须设置起点或终点");
             return;
         }
         for (String parameter : baiduMapOptionalParameters) {
             if (!props.hasKey(parameter)) {
                 continue;
             }
-            uriBuilder.appendQueryParameter(parameter, props.getDynamic(parameter).asString());
+            uriBuilder.appendQueryParameter(parameter, props.getString(parameter));
         }
         Intent intent = new Intent();
         intent.setData(uriBuilder.build());

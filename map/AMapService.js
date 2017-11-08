@@ -2,6 +2,7 @@
  * Created by lgzhuo on 2017/3/16.
  */
 import {NativeModules} from 'react-native'
+import AMap from "./AMap";
 
 const AMS = NativeModules.AMapService;
 
@@ -112,7 +113,8 @@ export type POISearchResponse = {
     title: string
 }
 export type StartNaviProps = {
-    id?:number
+    id?: number,
+    type?: 'walk' | 'drive'
 }
 
 // http://lbs.amap.com/api/amap-mobile/guide/ios/route
@@ -148,14 +150,24 @@ export type baiduMapRouteProps = {
     sy?: 0 | 2 | 3 | 4 | 5 | 6,                         //@platform android. 公交检索策略，只针对mode字段填写transit情况下有效，值为数字。 0：推荐路线 2：少换乘 3：少步行 4：不坐地铁 5：时间短 6：地铁优先
     index?: number,                                     //@platform android. 公交结果结果项，只针对公交检索，值为数字，从0开始
     target?: 0 | 1,                                     //@platform android. 0 图区，1 详情，只针对公交检索有效
-    coord_type?:string,                                 //@platform web,ios. 坐标类型，可选参数，默认为bd09ll。
-    zoom?:number,                                       //@platform web,ios. 展现地图的级别，默认为视觉最优级别。
-    src?:string                                         //@platform web,ios. 调用来源，ios 规则：webapp.navi.yourCompanyName.yourAppName
+    coord_type?: string,                                 //@platform web,ios. 坐标类型，可选参数，默认为bd09ll。
+    zoom?: number,                                       //@platform web,ios. 展现地图的级别，默认为视觉最优级别。
+    src?: string                                         //@platform web,ios. 调用来源，ios 规则：webapp.navi.yourCompanyName.yourAppName
 }
 
 class AMapService {
+    static type;
+
     static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
-        return await AMS.calculateNaviDriveRoute(props)
+        const routes = await AMS.calculateNaviDriveRoute(props);
+        AMapService.type = 'drive';
+        return routes
+    }
+
+    static async calculateNaviWalkRoute(props): Promise<NaviRoute[]> {
+        const routes = await AMS.calculateNaviWalkRoute(props);
+        AMapService.type = 'walk';
+        return routes
     }
 
     static async getCurrentPosition(props: LocationProps): Promise<GeoLocation> {
@@ -167,7 +179,7 @@ class AMapService {
     }
 
     static startNavi(props: StartNaviProps) {
-        AMS.startNavi(props)
+        AMS.startNavi({type: AMapService.type, ...props})
     }
 
     static callAMapRoute(props: AMapRouteProps) {

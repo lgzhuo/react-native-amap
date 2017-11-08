@@ -27,6 +27,8 @@
 		778ECF2D1F2B5D2900D1DA58 /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 778ECF1B1F2B5D2900D1DA58 /* SMCalloutView.m */; };
 		77DAB0B21FB144AD003603C0 /* DriveNaviViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 77DAB0AF1FB144AD003603C0 /* DriveNaviViewController.m */; };
 		77DAB0B31FB144AD003603C0 /* MoreMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 77DAB0B11FB144AD003603C0 /* MoreMenuView.m */; };
+		77DAB1211FB1AD0D003603C0 /* WalkNaviViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 77DAB1201FB1AD0D003603C0 /* WalkNaviViewController.m */; };
+		77DAB12F1FB29AAD003603C0 /* SpeechSynthesizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 77DAB12E1FB29AAD003603C0 /* SpeechSynthesizer.m */; };
 		77FC722E1F4170810057936A /* AMapLocationObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 77FC722D1F4170810057936A /* AMapLocationObserver.m */; };
 /* End PBXBuildFile section */
 
@@ -84,6 +86,10 @@
 		77DAB0AF1FB144AD003603C0 /* DriveNaviViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DriveNaviViewController.m; sourceTree = "<group>"; };
 		77DAB0B01FB144AD003603C0 /* MoreMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoreMenuView.h; sourceTree = "<group>"; };
 		77DAB0B11FB144AD003603C0 /* MoreMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoreMenuView.m; sourceTree = "<group>"; };
+		77DAB11F1FB1AD0D003603C0 /* WalkNaviViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkNaviViewController.h; sourceTree = "<group>"; };
+		77DAB1201FB1AD0D003603C0 /* WalkNaviViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkNaviViewController.m; sourceTree = "<group>"; };
+		77DAB12D1FB29AAD003603C0 /* SpeechSynthesizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpeechSynthesizer.h; sourceTree = "<group>"; };
+		77DAB12E1FB29AAD003603C0 /* SpeechSynthesizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpeechSynthesizer.m; sourceTree = "<group>"; };
 		77FC722C1F4170810057936A /* AMapLocationObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapLocationObserver.h; sourceTree = "<group>"; };
 		77FC722D1F4170810057936A /* AMapLocationObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapLocationObserver.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -102,10 +108,14 @@
 		778ECEF71F2B5D2900D1DA58 /* RCTAMap */ = {
 			isa = PBXGroup;
 			children = (
+				77DAB11F1FB1AD0D003603C0 /* WalkNaviViewController.h */,
+				77DAB1201FB1AD0D003603C0 /* WalkNaviViewController.m */,
 				77DAB0AE1FB144AD003603C0 /* DriveNaviViewController.h */,
 				77DAB0AF1FB144AD003603C0 /* DriveNaviViewController.m */,
 				77DAB0B01FB144AD003603C0 /* MoreMenuView.h */,
 				77DAB0B11FB144AD003603C0 /* MoreMenuView.m */,
+				77DAB12D1FB29AAD003603C0 /* SpeechSynthesizer.h */,
+				77DAB12E1FB29AAD003603C0 /* SpeechSynthesizer.m */,
 				778ECEF81F2B5D2900D1DA58 /* AMapCallout.h */,
 				778ECEF91F2B5D2900D1DA58 /* AMapCallout.m */,
 				778ECEFA1F2B5D2900D1DA58 /* AMapCalloutManager.h */,
@@ -233,9 +243,11 @@
 				778ECF211F2B5D2900D1DA58 /* AMapNaviRoute+ID.m in Sources */,
 				778ECF291F2B5D2900D1DA58 /* Convert2Json.m in Sources */,
 				778ECF1D1F2B5D2900D1DA58 /* AMapCalloutManager.m in Sources */,
+				77DAB12F1FB29AAD003603C0 /* SpeechSynthesizer.m in Sources */,
 				778ECF221F2B5D2900D1DA58 /* AMapPolyline.m in Sources */,
 				77FC722E1F4170810057936A /* AMapLocationObserver.m in Sources */,
 				778ECF2C1F2B5D2900D1DA58 /* RCTConvert+MAMap.m in Sources */,
+				77DAB1211FB1AD0D003603C0 /* WalkNaviViewController.m in Sources */,
 				778ECF231F2B5D2900D1DA58 /* AMapPolylineManager.m in Sources */,
 				77DAB0B21FB144AD003603C0 /* DriveNaviViewController.m in Sources */,
 				778ECF1E1F2B5D2900D1DA58 /* AMapCoordinate.m in Sources */,

@@ -17,6 +17,8 @@
 #import <AMapSearchKit/AMapSearchKit.h>
 #import <objc/runtime.h>
 #import "DriveNaviViewController.h"
+#import "SpeechSynthesizer.h"
+#import "WalkNaviViewController.h"
 
 #define AMapRequiredParameters @[@"sourceApplication",@"dlat",@"dlon",@"dev",@"t"]
 #define AMapOptionalParameters @[@"sid",@"slat",@"slon",@"sname",@"did",@"dname"]
@@ -62,8 +64,9 @@
 
 @end
 
-@interface AMapService()<AMapNaviDriveManagerDelegate,AMapSearchDelegate,DriveNaviViewControllerDelegate>
+@interface AMapService()<AMapNaviDriveManagerDelegate,AMapSearchDelegate,DriveNaviViewControllerDelegate,AMapNaviWalkManagerDelegate,WalkNaviViewControllerDelegate>
 @property(nonatomic,strong) AMapNaviDriveManager *naviDriveManager;
+@property(nonatomic,strong) AMapNaviWalkManager *naviWalkManager;
 @property(nonatomic,strong) AMapLocationManager *locationManager;
 @property(nonatomic,strong) AMapSearchAPI *searchApi;
 @property(nonatomic,readonly) UIViewController* rootVC;
@@ -72,6 +75,9 @@
 @implementation AMapService{
   RCTPromiseResolveBlock _naviDriveResolve;
   RCTPromiseRejectBlock _naviDriveReject;
+    
+  RCTPromiseResolveBlock _naviWalkResolve;
+  RCTPromiseRejectBlock _naviWalkReject;
 }
 
 RCT_EXPORT_MODULE(AMapService)
@@ -93,6 +99,11 @@ RCT_EXPORT_METHOD(calculateNaviDriveRoute:(NSDictionary*)props resolver:(RCTProm
   if (avoidCost && prioritiseHighway) {
     reject(@"-4", @"高速优先与避免收费不能同时为true.", nil);
     return;
+  }
+  if(_naviDriveReject){
+    _naviDriveReject(@"-1", @"有新的导航规划请求，当前路径规划已取消", nil);
+    _naviDriveReject = nil;
+    _naviDriveResolve = nil;
   }
   
   AMapNaviPoint *to = [RCTConvert AMapNaviPoint:props[@"to"]];
@@ -128,22 +139,62 @@ RCT_EXPORT_METHOD(calculateNaviDriveRoute:(NSDictionary*)props resolver:(RCTProm
   }
 }
 
-RCT_EXPORT_METHOD(startNavi:(NSDictionary*)props){
-    
-    DriveNaviViewController *driveVC = [[DriveNaviViewController alloc] init];
-    [driveVC setDelegate:self];
-    
-    if ([props.allKeys containsObject:@"id"]) {
-        [self.naviDriveManager selectNaviRouteWithRouteID:[RCTConvert NSInteger:props[@"id"]]];
+RCT_EXPORT_METHOD(calculateNaviWalkRoute:(NSDictionary*)props resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject){
+    if(!props || ![[props allKeys]containsObject:@"to"]){
+        reject(@"-2", @"参数不完整", nil);
+        return;
+    }
+    if(_naviWalkReject){
+        _naviWalkReject(@"-1", @"有新的导航规划请求，当前路径规划已取消", nil);
+        _naviWalkReject = nil;
+        _naviWalkResolve = nil;
     }
     
-    //将driveView添加为导航数据的Representative，使其可以接收到导航诱导数据
-    [self.naviDriveManager addDataRepresentative:driveVC.driveView];
+    AMapNaviPoint *to = [RCTConvert AMapNaviPoint:props[@"to"]];
+    AMapNaviPoint *from;
+    if([[props allKeys]containsObject:@"from"]){
+        from = [RCTConvert AMapNaviPoint:props[@"from"]];
+    }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.rootVC presentViewController:driveVC animated:NO completion:nil];
-        [self.naviDriveManager startGPSNavi];
-    });
+    BOOL r;
+    if(from){
+        r = [self.naviWalkManager calculateWalkRouteWithStartPoints:@[from] endPoints:@[to]];
+    }else{
+        r = [self.naviWalkManager calculateWalkRouteWithEndPoints:@[to]];
+    }
+    if(r){
+        _naviWalkResolve = resolve;
+        _naviWalkReject = reject;
+    }else{
+        reject(@"-5", @"导航线路规划失败", nil);
+    }
+}
+
+RCT_EXPORT_METHOD(startNavi:(NSDictionary*)props){
+    if ([@"walk" isEqualToString:props[@"type"]]) {
+        WalkNaviViewController *walkVC = [[WalkNaviViewController alloc]init];
+        walkVC.delegate = self;
+        [self.naviWalkManager addDataRepresentative:walkVC.walkView];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.rootVC presentViewController:walkVC animated:NO completion:nil];
+            [self.naviWalkManager startGPSNavi];
+        });
+    }else{
+        DriveNaviViewController *driveVC = [[DriveNaviViewController alloc] init];
+        [driveVC setDelegate:self];
+        
+        if ([props.allKeys containsObject:@"id"]) {
+            [self.naviDriveManager selectNaviRouteWithRouteID:[RCTConvert NSInteger:props[@"id"]]];
+        }
+        
+        //将driveView添加为导航数据的Representative，使其可以接收到导航诱导数据
+        [self.naviDriveManager addDataRepresentative:driveVC.driveView];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.rootVC presentViewController:driveVC animated:NO completion:nil];
+            [self.naviDriveManager startGPSNavi];
+        });
+    }
 }
 
 RCT_EXPORT_METHOD(getCurrentPosition:(NSDictionary*)props resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject){
@@ -353,6 +404,71 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
     }
 }
 
+- (void)driveManager:(AMapNaviDriveManager *)driveManager playNaviSoundString:(NSString *)soundString soundStringType:(AMapNaviSoundType)soundStringType{
+    NSLog(@"playNaviSoundString:{%ld:%@}", (long)soundStringType, soundString);
+    
+    [[SpeechSynthesizer sharedSpeechSynthesizer] speakString:soundString];
+}
+
+#pragma mark AMapNaviWalkManagerDelegate
+
+/**
+ *  发生错误时,会调用代理的此方法
+ *
+ *  @param error 错误信息
+ */
+- (void)walkManager:(AMapNaviWalkManager *)walkManager error:(NSError *)error{
+    NSLog(@"walk manager error %@", error);
+    if (_naviWalkReject) {
+        _naviWalkReject([NSString stringWithFormat:@"%ld",error.code], error.domain ,error);
+        _naviWalkReject = nil;
+        _naviWalkResolve = nil;
+    }
+}
+
+/**
+ *  步行路径规划成功后的回调函数
+ */
+- (void)walkManagerOnCalculateRouteSuccess:(AMapNaviWalkManager *)walkManager{
+    if (_naviWalkReject && _naviWalkResolve) {
+        if (walkManager.naviRoute){
+            AMapNaviRoute *route = walkManager.naviRoute;
+            route.routeID = walkManager.naviRouteID;
+            _naviWalkResolve(@[[Convert2Json AMapNaviRoute:route]]);
+        } else{
+            _naviWalkReject(@"-6", @"没有可用路线", nil);
+        }
+        _naviWalkReject = nil;
+        _naviWalkResolve = nil;
+    }
+}
+
+/**
+ *  步行路径规划失败后的回调函数
+ *
+ *  @param error 错误信息,error.code参照AMapNaviCalcRouteState
+ */
+- (void)walkManager:(AMapNaviWalkManager *)walkManager onCalculateRouteFailure:(NSError *)error{
+    NSLog(@"walk onCalculateRouteFailure %@", error);
+    if (_naviWalkReject) {
+        _naviWalkReject([NSString stringWithFormat:@"%ld",error.code], error.domain ,error);
+        _naviWalkReject = nil;
+        _naviWalkResolve = nil;
+    }
+}
+
+/**
+ *  导航播报信息回调函数
+ *
+ *  @param soundString 播报文字
+ *  @param soundStringType 播报类型,参考AMapNaviSoundType
+ */
+- (void)walkManager:(AMapNaviWalkManager *)walkManager playNaviSoundString:(NSString *)soundString soundStringType:(AMapNaviSoundType)soundStringType{
+    NSLog(@"playNaviSoundString:{%ld:%@}", (long)soundStringType, soundString);
+    
+    [[SpeechSynthesizer sharedSpeechSynthesizer] speakString:soundString];
+}
+
 #pragma mark AMapSearchDelegate
 /**
  * @brief 当请求发生错误时，会调用代理的此方法.
@@ -378,12 +494,15 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
 
 #pragma mark DriveNaviViewControllerDelegate
 - (void)driveNaviViewCloseButtonClicked{
-    //开始导航后不再允许选择路径，所以停止导航
     [self.naviDriveManager stopNavi];
-    
-    //停止语音
-//    [[SpeechSynthesizer sharedSpeechSynthesizer] stopSpeak];
-    
+    [[SpeechSynthesizer sharedSpeechSynthesizer] stopSpeak];
+    [self.rootVC dismissViewControllerAnimated:NO completion:nil];
+}
+
+#pragma mark WalkNaviViewControllerDelegate
+-(void)walkNaviViewCloseButtonClicked{
+    [self.naviWalkManager stopNavi];
+    [[SpeechSynthesizer sharedSpeechSynthesizer] stopSpeak];
     [self.rootVC dismissViewControllerAnimated:NO completion:nil];
 }
 
@@ -418,6 +537,14 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
     }
     
     return root;
+}
+
+-(AMapNaviWalkManager *)naviWalkManager{
+    if (!_naviWalkManager) {
+        _naviWalkManager = [[AMapNaviWalkManager alloc]init];
+        _naviWalkManager.delegate = self;
+    }
+    return _naviWalkManager;
 }
 
 @end
