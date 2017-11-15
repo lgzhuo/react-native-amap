@@ -25,6 +25,18 @@ export default class AMapMarker extends Component {
             v: PropTypes.number.isRequired,
         }),
         /**
+         * annotationView的中心默认位于annotation的坐标位置，
+         * 可以设置centerOffset改变view的位置，
+         * 正的偏移使view朝右下方移动，负的朝左上方，
+         * 单位是屏幕坐标
+         *
+         * @platform ios
+         */
+        centerOffset: PropTypes.shape({
+            x: PropTypes.number.isRequired,
+            y: PropTypes.number.isRequired,
+        }),
+        /**
          * 是否支持拖动
          *
          */

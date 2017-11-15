@@ -294,6 +294,19 @@ class ReactAMapView extends TextureMapView implements LocationSource, LifecycleE
         if (mLocationChangeListener != null && aMapLocation != null) {
             if (aMapLocation.getErrorCode() == 0) {
                 mLocationChangeListener.onLocationChanged(aMapLocation);
+
+                WritableMap event = Arguments.createMap();
+                WritableMap location = Arguments.createMap();
+                location.putDouble("latitude", aMapLocation.getLatitude());
+                location.putDouble("longitude", aMapLocation.getLongitude());
+                location.putDouble("altitude", aMapLocation.getAltitude());
+                location.putDouble("accuracy", aMapLocation.getAccuracy());
+                location.putDouble("heading", aMapLocation.getBearing());
+                location.putDouble("speed", aMapLocation.getSpeed());
+                location.putDouble("bearing", aMapLocation.getBearing());
+                location.putDouble("timestamp", aMapLocation.getTime());
+                event.putMap("location", location);
+                pushEvent("onLocationUpdate", event);
             } else {
                 String errText = "定位失败," + aMapLocation.getErrorCode() + ": " + aMapLocation.getErrorInfo();
                 Log.e("AmapErr", errText);

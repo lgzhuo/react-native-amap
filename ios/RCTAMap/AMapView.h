@@ -19,6 +19,7 @@
 @property (nonatomic, assign) MACoordinateRegion initialRegion;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCluster;
+@property (nonatomic, copy) RCTDirectEventBlock onLocationUpdate;
 
 -(void)calcuteCluster;
 @end

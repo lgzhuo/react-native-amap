@@ -105,6 +105,11 @@ export default class AMap extends Component {
             latitudeDelta: PropTypes.number.isRequired,
             longitudeDelta: PropTypes.number.isRequired,
         }),
+
+        /**
+         * callback that is called when user's location change and the showsUserLocation prop is true
+         */
+        onLocationUpdate: PropTypes.func
     };
 
     static defaultProps = {

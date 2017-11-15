@@ -12,6 +12,25 @@
 #import "RCTConvert+MAMap.h"
 #import "AMapMarker.h"
 #import "AMapPolyline.h"
+#import "Convert2Json.h"
+
+@implementation Convert2Json(Location)
+
++(NSDictionary*)CLLocation:(CLLocation*)location{
+    return @{
+             @"latitude": @(location.coordinate.latitude),
+             @"longitude": @(location.coordinate.longitude),
+             @"altitude": @(location.altitude),
+             @"accuracy": @(location.horizontalAccuracy),
+             @"altitudeAccuracy": @(location.verticalAccuracy),
+             @"heading": @(location.course),
+             @"speed": @(location.speed),
+             @"bearing": @(location.course),
+             @"timestamp": @([location.timestamp timeIntervalSince1970] * 1000), // in ms
+             };
+}
+
+@end
 
 @implementation RCTConvert(MapKit)
 
@@ -122,17 +141,17 @@ RCT_EXPORT_METHOD(fitRegion:(nonnull NSNumber *)reactTag
                   duration:(CGFloat)duration)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        AMapView *view = viewRegistry[reactTag];
+        UIView *view = viewRegistry[reactTag];
         if (![view isKindOfClass:[AMapView class]]) {
             RCTLogError(@"Cannot find AMapView with tag #%@", reactTag);
             return;
         }
         if(animate && duration>0){
             [AMapView animateWithDuration:duration/1000 animations:^{
-                [view setRegion:region animated:YES];
+                [(AMapView*)view setRegion:region animated:YES];
             }];
         }else{
-            [view setRegion:region animated:animate];
+            [(AMapView*)view setRegion:region animated:animate];
         }
     }];
 }
@@ -206,6 +225,12 @@ RCT_EXPORT_METHOD(fitCoordinates:(nonnull NSNumber *)reactTag
 
 - (void)mapView:(MAMapView *)mapView regionDidChangeAnimated:(BOOL)animated{
     [(AMapView*)mapView calcuteCluster];
+}
+
+- (void)mapView:(AMapView *)mapView didUpdateUserLocation:(MAUserLocation *)userLocation updatingLocation:(BOOL)updatingLocation{
+    if (updatingLocation && mapView.onLocationUpdate && userLocation.location) {
+        mapView.onLocationUpdate(@{@"location":[Convert2Json CLLocation:userLocation.location]});
+    }
 }
 
 @end

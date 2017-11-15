@@ -111,7 +111,8 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
     public Map getExportedCustomDirectEventTypeConstants() {
         return MapBuilder.of(
                 "onCluster", MapBuilder.of("registrationName", "onCluster"),
-                "onMapReady", MapBuilder.of("registrationName", "onMapReady")
+                "onMapReady", MapBuilder.of("registrationName", "onMapReady"),
+                "onLocationUpdate", MapBuilder.of("registrationName","onLocationUpdate")
         );
     }
 
