@@ -79,6 +79,7 @@ RCT_EXPORT_VIEW_PROPERTY(clusterData, ClusterPointArray)
 RCT_EXPORT_VIEW_PROPERTY(clusterSize, float)
 RCT_EXPORT_VIEW_PROPERTY(onCluster, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(initialRegion, MACoordinateRegion)
+RCT_EXPORT_VIEW_PROPERTY(onLocationUpdate, RCTDirectEventBlock)
 
 RCT_CUSTOM_VIEW_PROPERTY(region, MACoordinateRegion, AMapView)
 {

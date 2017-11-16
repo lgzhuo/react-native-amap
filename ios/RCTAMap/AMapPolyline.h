@@ -8,8 +8,9 @@
 
 #import <React/RCTView.h>
 #import <MAMapKit/MAMapKit.h>
+#import "AMapOverlay.h"
 
-@interface AMapPolyline : RCTView<MAOverlay>
+@interface AMapPolyline : RCTView<AMapOverlay>
 
 @property(nonatomic, weak) MAMapView *map;
 

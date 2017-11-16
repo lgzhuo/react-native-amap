@@ -45,6 +45,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		776595EA1FBD1A07004E7FB8 /* AMapOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapOverlay.h; sourceTree = "<group>"; };
 		778ECEF81F2B5D2900D1DA58 /* AMapCallout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapCallout.h; sourceTree = "<group>"; };
 		778ECEF91F2B5D2900D1DA58 /* AMapCallout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMapCallout.m; sourceTree = "<group>"; };
 		778ECEFA1F2B5D2900D1DA58 /* AMapCalloutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMapCalloutManager.h; sourceTree = "<group>"; };
@@ -108,6 +109,7 @@
 		778ECEF71F2B5D2900D1DA58 /* RCTAMap */ = {
 			isa = PBXGroup;
 			children = (
+				776595EA1FBD1A07004E7FB8 /* AMapOverlay.h */,
 				77DAB11F1FB1AD0D003603C0 /* WalkNaviViewController.h */,
 				77DAB1201FB1AD0D003603C0 /* WalkNaviViewController.m */,
 				77DAB0AE1FB144AD003603C0 /* DriveNaviViewController.h */,

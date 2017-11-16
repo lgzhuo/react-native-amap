@@ -39,7 +39,6 @@ export default class AMapPolyline extends Component {
         /**
          * z轴值
          *
-         * @platform android
          */
         zIndex: PropTypes.number,
 
