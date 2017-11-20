@@ -24,6 +24,7 @@
     "preset": "react-native"
   },
   "dependencies": {
-    "prop-types": "^15.5.10"
+    "prop-types": "^15.5.10",
+    "urijs": "^1.18.10"
   }
 }

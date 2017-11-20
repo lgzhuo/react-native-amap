@@ -1,8 +1,8 @@
 /**
  * Created by lgzhuo on 2017/3/16.
  */
-import {NativeModules} from 'react-native'
-import AMap from "./AMap";
+import {NativeModules, Platform, Linking} from 'react-native'
+import URI from 'urijs'
 
 const AMS = NativeModules.AMapService;
 
@@ -117,78 +117,515 @@ export type StartNaviProps = {
     type?: 'walk' | 'drive'
 }
 
-// http://lbs.amap.com/api/amap-mobile/guide/ios/route
+type Coordinate = 'wgs84' | 'gcj02' | 'bd09'
+
+export type MapRouteProps = {
+    src: string,//调用者APP的名称或包名
+    sLatLng?: LatLng,//起点经纬度
+    sName?: string,//起点名称
+    sRegion?: string,//起点所在县市
+    dLatLng?: LatLng,//终点经纬度
+    dName?: string,//终点名称
+    dRegion?: string,//终点所在县市
+    mode?: 'car' | 'bus' | 'walk' | 'ride',//路径规划类型，默认驾车导航
+    coordinate?: Coordinate//传入的坐标体系
+}
+
 // http://lbs.amap.com/api/amap-mobile/guide/android/route
-export type AMapRouteProps = {
-    sourceApplication: string,//第三方调用应用名称
-    dlat: number,             //终点纬度
-    dlon: number,             //终点经度
-    dev: 0 | 1,               //起终点是否偏移(0:lat 和 lon 是已经加密后的,不需要国测加密; 1:需要国测加密)
-    t: 0 | 1 | 2 | 3 | 4 | 5, //t = 0（驾车）= 1（公交）= 2（步行）= 3（骑行）= 4（火车）= 5（长途客车）
-    sid?: string,             //起点的POIID
-    slat?: number,            //起点纬度。如果不填写此参数则自动将用户当前位置设为起点纬度。
-    slon?: number,            //起点经度。 如果不填写此参数则自动将用户当前位置设为起点经度。
-    sname?: string,           //起点名称
-    did?: string,             //终点的POIID
-    dname?: string            //终点名称
+// http://lbs.amap.com/api/amap-mobile/guide/ios/route
+const amapRouteUriCreator = (baseUri: string) => (props: MapRouteProps): string => {
+    let dev, t;
+    switch (props.mode) {
+        case 'bus':
+            t = 1;
+            break;
+        case 'walk':
+            t = 2;
+            break;
+        case 'ride':
+            t = 3;
+            break;
+        case 'car':
+        default:
+            t = 0;
+            break;
+
+    }
+    switch (props.coordinate) {
+        case 'wgs84':
+            dev = 1;
+            break;
+        case 'bd09':
+            dev = 0;//TODO 转坐标
+            break;
+        case 'gcj02':
+        default:
+            dev = 0;
+            break;
+    }
+    let uri = URI(baseUri)
+        .addSearch('sourceApplication', props.src)
+        .addSearch('dev', dev)
+        .addSearch('t', t)
+        .addSearch('sname', props.sName)
+        .addSearch('dname', props.dName);
+    if (props.sLatLng) {
+        uri.addSearch('slat', props.slat)
+            .addSearch('slon', props.slon)
+    }
+    if (props.dLatLng) {
+        uri.addSearch('dlat', props.dLatLng.latitude)
+            .addSearch('dlon', props.dLatLng.longitude)
+    }
+    return uri.toString()
+};
+
+const amapRouteUriAndroid = amapRouteUriCreator('amapuri://route/plan');
+
+const amapRouteUriIOS = amapRouteUriCreator('iosamap://path');
+
+//http://lbs.amap.com/api/uri-api/guide/travel/route
+function amapRouteUriWeb(props: MapRouteProps): string {
+    let coordinate, from, to;
+    switch (props.coordinate) {
+        case 'wgs84':
+            coordinate = 'wgs84';
+            break;
+        case 'bd09':
+            coordinate = 'gaode';//TODO 转坐标
+            break;
+        case 'gcj02':
+        default:
+            coordinate = 'gaode';
+            break;
+    }
+    if (props.sLatLng) {
+        from = `${props.sLatLng.longitude},${props.sLatLng.latitude}`;
+        if (props.sName) {
+            from = `${from},${props.sName}`
+        }
+    }
+    if (props.dLatLng) {
+        to = `${props.dLatLng.longitude},${props.dLatLng.latitude}`;
+        if (props.dName) {
+            to = `${to},${props.dName}`
+        }
+    }
+    let uri = URI('http://uri.amap.com/navigation')
+        .addSearch('src', props.src)
+        .addSearch('mode', props.mode)
+        .addSearch('coordinate', coordinate)
+        .addSearch('callnative', 1)
+        .addSearch('from', from)
+        .addSearch('to', to);
+    return uri.toString()
 }
 
-/**
- * http://lbsyun.baidu.com/index.php?title=uri/api/android
- * http://lbsyun.baidu.com/index.php?title=uri/api/ios
- *
- * origin和destination二者至少一个有值（默认值是当前定位地址）
- *
- */
-export type baiduMapRouteProps = {
-    origin?: string,                                    //起点名称或经纬度，或者可同时提供名称和经纬度，此时经纬度优先级高，将作为导航依据，名称只负责展示
-    destination?: string,                               //终点名称或经纬度，或者可同时提供名称和经纬度，此时经纬度优先级高，将作为导航依据，名称只负责展示。
-    mode?: 'transit' | 'driving' | 'walking' | 'riding',//导航模式，可选transit（公交）、driving（驾车）、walking（步行）和riding（骑行）.默认:driving
-    region?: string,                                    //城市名或县名
-    origin_region?: string,                             //起点所在城市或县
-    destination_region?: string,                        //终点所在城市或县
-    sy?: 0 | 2 | 3 | 4 | 5 | 6,                         //@platform android. 公交检索策略，只针对mode字段填写transit情况下有效，值为数字。 0：推荐路线 2：少换乘 3：少步行 4：不坐地铁 5：时间短 6：地铁优先
-    index?: number,                                     //@platform android. 公交结果结果项，只针对公交检索，值为数字，从0开始
-    target?: 0 | 1,                                     //@platform android. 0 图区，1 详情，只针对公交检索有效
-    coord_type?: string,                                 //@platform web,ios. 坐标类型，可选参数，默认为bd09ll。
-    zoom?: number,                                       //@platform web,ios. 展现地图的级别，默认为视觉最优级别。
-    src?: string                                         //@platform web,ios. 调用来源，ios 规则：webapp.navi.yourCompanyName.yourAppName
+async function amapRoute(props: MapRouteProps) {
+    let amapRouteUriCreator, amapUri, uri;
+    switch (Platform.OS) {
+        case 'ios':
+            amapRouteUriCreator = amapRouteUriIOS;
+            amapUri = 'iosamap://path';
+            break;
+        case 'android':
+            amapRouteUriCreator = amapRouteUriAndroid;
+            amapUri = 'amapuri://route/plan';
+            break;
+        default:
+            amapRouteUriCreator = amapRouteUriWeb;
+            amapUri = 'http://uri.amap.com/navigation';
+            break;
+    }
+    const support = await Linking.canOpenURL(amapUri);
+    if (support) {
+        uri = amapRouteUriCreator(props);
+    } else {
+        uri = amapRouteUriWeb(props)
+    }
+    await Linking.openURL(uri);
+    return uri
 }
 
-class AMapService {
-    static type;
-
-    static async calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
-        const routes = await AMS.calculateNaviDriveRoute(props);
-        AMapService.type = 'drive';
-        return routes
+function baidumapPoint(latLng?: LatLng, name?: string): string | void {
+    let point;
+    if (latLng) {
+        point = `${latLng.latitude},${latLng.longitude}`;
+        if (name) {
+            point = `latlng:${point}|name:${name}`
+        }
     }
+    return point
+}
 
-    static async calculateNaviWalkRoute(props): Promise<NaviRoute[]> {
-        const routes = await AMS.calculateNaviWalkRoute(props);
-        AMapService.type = 'walk';
-        return routes
+//http://lbsyun.baidu.com/index.php?title=uri/api/android
+//http://lbsyun.baidu.com/index.php?title=uri/api/ios
+function baidumapRouteUri(props: MapRouteProps): string {
+    let origin = baidumapPoint(props.sLatLng, props.sName),
+        destination = baidumapPoint(props.dLatLng, props.dName),
+        mode;
+    switch (props.mode) {
+        case 'bus':
+            mode = 'transit';
+            break;
+        case 'walk':
+            mode = 'walking';
+            break;
+        case 'ride':
+            mode = 'riding';
+            break;
+        case 'car':
+        default:
+            mode = 'driving';
+            break;
     }
+    let uri = URI('baidumap://map/direction')
+        .addSearch('origin', origin)
+        .addSearch('destination', destination)
+        .addSearch('mode', mode)
+        .addSearch('coord_type', props.coordinate)
+        .addSearch('src', props.src);
+    return uri.toString();
+}
 
-    static async getCurrentPosition(props: LocationProps): Promise<GeoLocation> {
-        return await AMS.getCurrentPosition(props)
+//http://lbsyun.baidu.com/index.php?title=uri/api/web
+function baidumapRouteUriWeb(props: MapRouteProps): string {
+    let origin = baidumapPoint(props.sLatLng, props.sName),
+        destination = baidumapPoint(props.dLatLng, props.dName),
+        mode;
+    switch (props.mode) {
+        case 'bus':
+            mode = 'transit';
+            break;
+        case 'walk':
+        case 'ride':
+            mode = 'walking';
+            break;
+        case 'car':
+        default:
+            mode = 'driving';
+            break;
     }
+    let uri = URI('http://api.map.baidu.com/direction')
+        .addSearch('origin', origin)
+        .addSearch('destination', destination)
+        .addSearch('mode', mode)
+        .addSearch('output', 'html')
+        .addSearch('coord_type', props.coordinate)
+        .addSearch('src', props.src)
+        //baidu web uri 必须指定region
+        .addSearch('origin_region', props.sRegion || 'b')
+        .addSearch('destination_region', props.dRegion || 'b');
+    return uri.toString();
+}
 
-    static async poiSearch(props): Promise<POISearchResponse> {
-        return await AMS.poiSearch({pageSize: 10, pageNum: 0, cityLimit: true, ...props})
+async function baidumapRoute(props: MapRouteProps) {
+    const support = await Linking.canOpenURL('baidumap://map/direction');
+    let uri;
+    if (support) {
+        uri = baidumapRouteUri(props)
+    } else {
+        uri = baidumapRouteUriWeb(props)
     }
+    await Linking.openURL(uri);
+    return uri
+}
 
-    static startNavi(props: StartNaviProps) {
-        AMS.startNavi({type: AMapService.type, ...props})
+export type MapMarkProps = {
+    src: string,
+    latLng: LatLng,
+    name?: string,
+    content?: string,
+    coordinate?: Coordinate
+}
+
+const amapMarkUriCreator = (baseUri: string) => (props: MapMarkProps): string => {
+    let dev;
+    switch (props.coordinate) {
+        case 'wgs84':
+            dev = 1;
+            break;
+        case 'bd09':
+            dev = 0;//TODO 转坐标
+            break;
+        case 'gcj02':
+        default:
+            dev = 0;
+            break;
     }
+    let uri = URI(baseUri)
+        .addSearch('sourceApplication', props.src)
+        .addSearch('poiname', props.name)
+        .addSearch('lat', props.latLng.latitude)
+        .addSearch('lon', props.latLng.longitude)
+        .addSearch('dev', dev);
+    return uri.toString()
+};
 
-    static callAMapRoute(props: AMapRouteProps) {
-        AMS.callAMapRoute(props)
+const amapMarkUriAndroid = amapMarkUriCreator('androidamap://viewMap');
+
+const amapMarkUriIOS = amapMarkUriCreator('iosamap://viewMap');
+
+function amapMarkUriWeb(props: MapMarkProps) {
+    let coordinate;
+    switch (props.coordinate) {
+        case 'wgs84':
+            coordinate = 'wgs84';
+            break;
+        case 'bd09':
+            coordinate = 'gaode';//TODO 转坐标
+            break;
+        case 'gcj02':
+        default:
+            coordinate = 'gaode';
+            break;
     }
+    let uri = URI('http://uri.amap.com/marker')
+        .addSearch('src', props.src)
+        .addSearch('position', `${props.latLng.longitude},${props.latLng.latitude}`)
+        .addSearch('name', props.name);
+    return uri.toString()
+}
 
-    static callBaiduMapRoute(props: baiduMapRouteProps) {
-        AMS.callBaiduMapRoute(props)
+async function amapMark(props: MapMarkProps) {
+    let amapMarkUri, markUri, uri;
+    switch (Platform.OS) {
+        case 'ios':
+            amapMarkUri = amapMarkUriIOS;
+            markUri = 'iosamap://viewMap';
+            break;
+        case 'android':
+            amapMarkUri = amapMarkUriAndroid;
+            markUri = 'androidamap://viewMap';
+            break;
+        default:
+            amapMarkUri = amapMarkUriWeb;
+            markUri = 'http://uri.amap.com/marker';
+            break;
+    }
+    const support = await Linking.canOpenURL(markUri);
+    if (support) {
+        uri = amapMarkUri(props);
+    } else {
+        uri = amapMarkUriWeb(props)
+    }
+    await Linking.openURL(uri);
+    return uri
+}
+
+function baidumapMarkUri(props: MapMarkProps): string {
+    let uri = URI('baidumap://map/marker')
+        .addSearch('location', `${props.latLng.latitude},${props.latLng.longitude}`)
+        .addSearch('title', props.name)
+        .addSearch('content', props.content)
+        .addSearch('coord_type', props.coordinate)
+        .addSearch('src', props.src);
+    return uri.toString()
+}
+
+function baidumapMarkUriWeb(props: MapMarkProps): string {
+    let uri = URI('http://api.map.baidu.com/marker')
+        .addSearch('location', `${props.latLng.latitude},${props.latLng.longitude}`)
+        .addSearch('title', props.name)
+        .addSearch('content', props.content)
+        .addSearch('coord_type', props.coordinate)
+        .addSearch('src', props.src)
+        .addSearch('output', 'html');
+    return uri.toString()
+}
+
+async function baidumapMark(props: MapMarkProps) {
+    const support = await Linking.canOpenURL('baidumap://map/marker');
+    let uri;
+    if (support) {
+        uri = baidumapMarkUri(props)
+    } else {
+        uri = baidumapMarkUriWeb(props)
+    }
+    await Linking.openURL(uri);
+    return uri
+}
+
+export type POIProps = {
+    keywords: string | string[],
+    location?: LatLng | LatLng[],
+    coordinate?: Coordinate,
+    src: string,
+    region?: string,
+}
+
+function amapPOIUriCreator(baseUri: string): POIProps => string {
+    return function (props: POIProps) {
+        let keywords = props.keywords, dev;
+        if (Array.isArray(props.keywords)) {
+            keywords = props.keywords.join('|')
+        }
+        switch (props.coordinate) {
+            case 'wgs84':
+                dev = 1;
+                break;
+            case 'bd09':
+                dev = 0;//TODO 转坐标
+                break;
+            case 'gcj02':
+            default:
+                dev = 0;
+                break;
+        }
+        let uri = URI(baseUri)
+            .addSearch('keywords', keywords)
+            .addSearch('sourceApplication', props.src)
+            .addSearch('dev', dev);
+        if (Array.isArray(props.location)) {
+            props.location.map((loc, idx) => {
+                uri.addSearch(`lat${idx + 1}`, loc.latitude);
+                uri.addSearch(`lon${idx + 1}`, loc.longitude)
+            })
+        } else if (typeof props.location === 'object') {
+            uri.addSearch('lat1', props.location.latitude)
+                .addSearch('lon1', props.location.longitude)
+        }
+        return uri.toString()
     }
 }
 
-export default AMapService;
+const amapPOIUriAndroid = amapPOIUriCreator('androidamap://poi');
+
+const amapPOIUriIOS = amapPOIUriCreator('iosamap://poi');
+
+function amapPOIUriWeb(props: POIProps) {
+    let keyword = props.keywords,
+        center = Array.isArray(props.location) ? props.location[0] : props.location,
+        coordinate;
+    if (Array.isArray(props.keywords)) {
+        keyword = props.keywords[0]
+    }
+    if (center) {
+        center = `${center.longitude},${center.latitude}`
+    }
+    switch (props.coordinate) {
+        case 'wgs84':
+            coordinate = 'wgs84';
+            break;
+        case 'bd09':
+            coordinate = 'gaode';//TODO 转坐标
+            break;
+        case 'gcj02':
+        default:
+            coordinate = 'gaode';
+            break;
+    }
+    let uri = URI('http://uri.amap.com/search')
+        .addSearch('keyword', keyword)
+        .addSearch('center', center)
+        .addSearch('city', props.region)
+        .addSearch('view', 'map')
+        .addSearch('src', props.src)
+        .addSearch('coordinate', coordinate);
+    return uri.toString()
+}
+
+async function amapPOI(props: POIProps) {
+    let amapPOIUri, poiUri, uri;
+    switch (Platform.OS) {
+        case 'ios':
+            amapPOIUri = amapPOIUriIOS;
+            poiUri = 'iosamap://poi';
+            break;
+        case 'android':
+            amapPOIUri = amapPOIUriAndroid;
+            poiUri = 'androidamap://poi';
+            break;
+        default:
+            amapPOIUri = amapPOIUriWeb;
+            poiUri = 'http://uri.amap.com/search';
+            break;
+    }
+    const support = await Linking.canOpenURL(poiUri);
+    if (support) {
+        uri = amapPOIUri(props);
+    } else {
+        uri = amapPOIUriWeb(props)
+    }
+    await Linking.openURL(uri);
+    return uri
+}
+
+function baidumapPOIUri(props: POIProps) {
+    let query = Array.isArray(props.keywords) ? props.keywords[0] : props.keywords,
+        location = Array.isArray(props.location) ? props.location[0] : props.location;
+    if (location) {
+        location = `${location.latitude},${location.longitude}`
+    }
+    let uri = URI('baidumap://map/place/search')
+        .addSearch('query', query)
+        .addSearch('location', location)
+        .addSearch('coord_type', props.coordinate)
+        .addSearch('src', props.src)
+        .addSearch('region', props.region);
+    return uri.toString()
+}
+
+function baidumapPOIUriWeb(props: POIProps) {
+    let query = Array.isArray(props.keywords) ? props.keywords[0] : props.keywords,
+        location = Array.isArray(props.location) ? props.location[0] : props.location;
+    if (location) {
+        location = `${location.latitude},${location.longitude}`
+    }
+    let uri = URI('http://api.map.baidu.com/place/search')
+        .addSearch('query', query)
+        .addSearch('location', location)
+        .addSearch('output', 'html')
+        .addSearch('coord_type', props.coordinate)
+        .addSearch('src', props.src)
+        .addSearch('region', props.region || 'b');
+    return uri.toString()
+}
+
+async function baidumapPOI(props: POIProps) {
+    const support = await Linking.canOpenURL('baidumap://map/place/search');
+    let uri;
+    if (support) {
+        uri = baidumapPOIUri(props)
+    } else {
+        uri = baidumapPOIUriWeb(props)
+    }
+    await Linking.openURL(uri);
+    return uri
+}
+
+let type;
+
+async function calculateNaviDriveRoute(props: NaviDriveProps): Promise<NaviRoute[]> {
+    const routes = await AMS.calculateNaviDriveRoute(props);
+    type = 'drive';
+    return routes
+}
+
+async function calculateNaviWalkRoute(props): Promise<NaviRoute[]> {
+    const routes = await AMS.calculateNaviWalkRoute(props);
+    type = 'walk';
+    return routes
+}
+
+async function poiSearch(props: POISearchProps): Promise<POISearchResponse> {
+    return await AMS.poiSearch({pageSize: 10, pageNum: 0, cityLimit: true, ...props})
+}
+
+function startNavi(props: StartNaviProps) {
+    AMS.startNavi({type, ...props})
+}
+
+export default {
+    calculateNaviDriveRoute,
+    calculateNaviWalkRoute,
+    poiSearch,
+    startNavi,
+    amapRoute,
+    amapMark,
+    amapPOI,
+    baidumapRoute,
+    baidumapMark,
+    baidumapPOI
+}
+
