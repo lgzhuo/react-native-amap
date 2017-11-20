@@ -22,6 +22,7 @@ RCT_EXPORT_VIEW_PROPERTY(lineJoin, MALineJoinType)
 RCT_EXPORT_VIEW_PROPERTY(miterLimit, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(lineDash, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(zIndex, NSInteger)
 
 - (UIView *)view
 {
