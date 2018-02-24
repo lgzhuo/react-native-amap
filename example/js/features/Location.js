@@ -4,8 +4,6 @@
 import React from 'react'
 import {StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, FlatList} from 'react-native'
 import {AMapLocation} from 'react-native-amap'
-import JSONTree from 'react-native-json-tree'
-import fecha from 'fecha'
 
 const Button = ({onPress, title, disabled}) => (
     <TouchableOpacity onPress={onPress} disabled={disabled}>
@@ -22,7 +20,7 @@ const _keyExtractor = (item, index) => index;
 const Item = ({date, desc}) => (
     <View style={{paddingHorizontal: 8, paddingVertical: 4}}>
         <Text style={{fontSize: 14}}>
-            {fecha.format(date, 'HH:mm:ss')}
+            {date}
             {' '}
             <Text style={{fontWeight: 'bold', fontSize: 15}}>
                 {desc}
@@ -54,11 +52,7 @@ export class Location extends React.PureComponent {
                     {this.state.requestCurrentPosition && (
                         <ActivityIndicator/>
                     )}
-                    {this.state.currentPosition && (
-                        <View style={{flex: 1}}>
-                            <JSONTree data={this.state.currentPosition}/>
-                        </View>
-                    )}
+
                 </View>
                 <View style={{alignItems: 'flex-end'}}>
                     <Button title={this.state.watching ? '关闭定位监听' : '开启定位监听'} onPress={this._locationWatcherToggle}/>
@@ -110,32 +104,32 @@ export class Location extends React.PureComponent {
         }
     };
 
-    _uploadLocation = () => {
-        const locations = this.state.locations,
-            targetIndex = locations.length,
-            startIndex = this.uploadIndex;
-        if (startIndex < targetIndex) {
-            const url = `http://192.168.1.107:8888/upload?data=${JSON.stringify(locations.slice(this.uploadIndex).filter(({error}) => !error).map(({
-                                                                                                                                                   location: {
-                                                                                                                                                       coords: {
-                                                                                                                                                           latitude,
-                                                                                                                                                           longitude
-                                                                                                                                                       }, timestamp
-                                                                                                                                                   }
-                                                                                                                                               }) => ({
-                latitude,
-                longitude,
-                time: fecha.format(timestamp, 'HH:mm:ss')
-            })))}`;
-            console.debug('upload location ->', url);
-            fetch(url).then(() => {
-                console.debug(`upload locations from ${startIndex} to ${targetIndex}`);
-                this.uploadIndex = targetIndex;
-            }).catch(e => {
-                console.debug(`upload locations err`, e);
-            })
-        }
-    }
+    // _uploadLocation = () => {
+    //     const locations = this.state.locations,
+    //         targetIndex = locations.length,
+    //         startIndex = this.uploadIndex;
+    //     if (startIndex < targetIndex) {
+    //         const url = `http://192.168.1.107:8888/upload?data=${JSON.stringify(locations.slice(this.uploadIndex).filter(({error}) => !error).map(({
+    //                                                                                                                                                location: {
+    //                                                                                                                                                    coords: {
+    //                                                                                                                                                        latitude,
+    //                                                                                                                                                        longitude
+    //                                                                                                                                                    }, timestamp
+    //                                                                                                                                                }
+    //                                                                                                                                            }) => ({
+    //             latitude,
+    //             longitude,
+    //             time: fecha.format(timestamp, 'HH:mm:ss')
+    //         })))}`;
+    //         console.debug('upload location ->', url);
+    //         fetch(url).then(() => {
+    //             console.debug(`upload locations from ${startIndex} to ${targetIndex}`);
+    //             this.uploadIndex = targetIndex;
+    //         }).catch(e => {
+    //             console.debug(`upload locations err`, e);
+    //         })
+    //     }
+    // }
 }
 
 const styles = StyleSheet.create({
