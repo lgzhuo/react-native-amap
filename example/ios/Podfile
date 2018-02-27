@@ -1,9 +1,10 @@
 platform :ios, '8.0'
 
 target 'RCTAMapExample' do
+  rn_path = '../../node_modules/react-native'
 
-  pod 'Yoga', :path => '../node_modules/react-native/ReactCommon/yoga/Yoga.podspec'
-  pod 'React', path: '../node_modules/react-native', :subspecs => [
+  pod 'yoga', :path => "#{rn_path}/ReactCommon/yoga/Yoga.podspec"
+  pod 'React', path: rn_path, :subspecs => [
     'Core',
     'RCTActionSheet',
     'RCTAnimation',
@@ -15,7 +16,8 @@ target 'RCTAMapExample' do
     'RCTText',
     'RCTVibration',
     'RCTWebSocket',
-    'BatchedBridge'
+    'BatchedBridge',
+    'DevSupport'
   ]
 
   pod 'AMap3DMap-NO-IDFA', '4.6.0'
@@ -24,4 +26,14 @@ target 'RCTAMapExample' do
   pod 'AMapSearch-NO-IDFA'
   pod 'react-native-amap', path: '../../'
 
+end
+
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        if target.name == 'react-native-amap'
+            target.build_configurations.each do |config|
+                config.build_settings['CLANG_ENABLE_MODULES'] = 'No'
+            end
+        end
+    end
 end

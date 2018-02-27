@@ -1,0 +1,101 @@
+PODS:
+  - AMap3DMap-NO-IDFA (4.6.0):
+    - AMapFoundation-NO-IDFA (~> 1.3)
+  - AMapFoundation-NO-IDFA (1.4.0)
+  - AMapLocation-NO-IDFA (2.4.0):
+    - AMapFoundation-NO-IDFA (~> 1.4)
+  - AMapNavi-NO-IDFA (2.3.0):
+    - AMap3DMap-NO-IDFA (~> 4.2)
+    - AMapFoundation-NO-IDFA (~> 1.2)
+  - AMapSearch-NO-IDFA (5.2.1):
+    - AMapFoundation-NO-IDFA (~> 1.2)
+  - React (0.53.3):
+    - React/Core (= 0.53.3)
+  - react-native-amap (0.3.0):
+    - AMapLocation-NO-IDFA
+    - AMapNavi-NO-IDFA
+    - AMapSearch-NO-IDFA
+    - React
+  - React/BatchedBridge (0.53.3):
+    - React/Core
+    - React/cxxreact_legacy
+  - React/Core (0.53.3):
+    - yoga (= 0.53.3.React)
+  - React/cxxreact_legacy (0.53.3):
+    - React/jschelpers_legacy
+    - React/jsinspector_legacy
+  - React/DevSupport (0.53.3):
+    - React/Core
+    - React/RCTWebSocket
+  - React/fishhook (0.53.3)
+  - React/jschelpers_legacy (0.53.3)
+  - React/jsinspector_legacy (0.53.3)
+  - React/RCTActionSheet (0.53.3):
+    - React/Core
+  - React/RCTAnimation (0.53.3):
+    - React/Core
+  - React/RCTBlob (0.53.3):
+    - React/Core
+  - React/RCTGeolocation (0.53.3):
+    - React/Core
+  - React/RCTImage (0.53.3):
+    - React/Core
+    - React/RCTNetwork
+  - React/RCTLinkingIOS (0.53.3):
+    - React/Core
+  - React/RCTNetwork (0.53.3):
+    - React/Core
+  - React/RCTSettings (0.53.3):
+    - React/Core
+  - React/RCTText (0.53.3):
+    - React/Core
+  - React/RCTVibration (0.53.3):
+    - React/Core
+  - React/RCTWebSocket (0.53.3):
+    - React/Core
+    - React/fishhook
+    - React/RCTBlob
+  - yoga (0.53.3.React)
+
+DEPENDENCIES:
+  - AMap3DMap-NO-IDFA (= 4.6.0)
+  - AMapLocation-NO-IDFA
+  - AMapNavi-NO-IDFA
+  - AMapSearch-NO-IDFA
+  - react-native-amap (from `../../`)
+  - React/BatchedBridge (from `../../node_modules/react-native`)
+  - React/Core (from `../../node_modules/react-native`)
+  - React/DevSupport (from `../../node_modules/react-native`)
+  - React/RCTActionSheet (from `../../node_modules/react-native`)
+  - React/RCTAnimation (from `../../node_modules/react-native`)
+  - React/RCTGeolocation (from `../../node_modules/react-native`)
+  - React/RCTImage (from `../../node_modules/react-native`)
+  - React/RCTLinkingIOS (from `../../node_modules/react-native`)
+  - React/RCTNetwork (from `../../node_modules/react-native`)
+  - React/RCTSettings (from `../../node_modules/react-native`)
+  - React/RCTText (from `../../node_modules/react-native`)
+  - React/RCTVibration (from `../../node_modules/react-native`)
+  - React/RCTWebSocket (from `../../node_modules/react-native`)
+  - yoga (from `../../node_modules/react-native/ReactCommon/yoga/Yoga.podspec`)
+
+EXTERNAL SOURCES:
+  React:
+    :path: ../../node_modules/react-native
+  react-native-amap:
+    :path: ../../
+  yoga:
+    :path: ../../node_modules/react-native/ReactCommon/yoga/Yoga.podspec
+
+SPEC CHECKSUMS:
+  AMap3DMap-NO-IDFA: 1b487ddc6eb472039cb0ac961555bd3e30b81e95
+  AMapFoundation-NO-IDFA: d1ba541a56737c2048115a745b1dfcbe9901c248
+  AMapLocation-NO-IDFA: 9493012d3241a7d551942c7c1e1069b51f295083
+  AMapNavi-NO-IDFA: a54f35c1c1e3e0ba14cf1139a7c7a6e8ff832fae
+  AMapSearch-NO-IDFA: ec04c2c15ef278803234d959328acda14c2c3c5d
+  React: fd20e9486c9d994fb6e40d6e67dbd29c7709889c
+  react-native-amap: caaef07bdeb8c45b30ff340d3dcaa1ccc6fc0550
+  yoga: c7c8e64dbc2552b1ceac0b491ff03f5e5128b501
+
+PODFILE CHECKSUM: 7162beae4ac68049d12ce444564bb7d44647c779
+
+COCOAPODS: 1.3.1

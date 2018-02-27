@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "8.0"
 
   s.source       = { :git => "https://github.com/lgzhuo/react-native-amap.git" }
-  s.source_files = "ios/RCTAMap/**/*.{h,m}"
+  s.source_files = "lib/ios/RCTAMap/**/*.{h,m}"
 
   s.dependency 'React'
   s.dependency 'AMapNavi-NO-IDFA'
