@@ -2,7 +2,7 @@
   "name": "react-native-amap",
   "description": "React Native AMap component for iOS + Android",
   "main": "index.js",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "start:android": "adb shell am start -n rct.amap.example/.MainActivity",
@@ -12,8 +12,8 @@
     "preversion": "./scripts/update-version.js"
   },
   "peerDependencies": {
-    "react": "16.2.0",
-    "react-native": "0.53.3"
+    "react": "*",
+    "react-native": "*"
   },
   "devDependencies": {
     "babel-jest": "22.2.2",

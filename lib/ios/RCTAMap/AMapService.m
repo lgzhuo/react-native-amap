@@ -509,7 +509,7 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
 #pragma mark getter & setter
 -(AMapNaviDriveManager *)naviDriveManager{
   if (!_naviDriveManager) {
-    _naviDriveManager = [[AMapNaviDriveManager alloc]init];
+    _naviDriveManager = [AMapNaviDriveManager sharedInstance];
     _naviDriveManager.delegate = self;
   }
   return _naviDriveManager;

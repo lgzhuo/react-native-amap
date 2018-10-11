@@ -47,6 +47,7 @@ static NSInteger ZIndex(id obj)
         _reactSubviews = [NSMutableArray new];
         _callout = [SMCalloutView platformCalloutView];
         _callout.delegate = self;
+        self.autoresizingMask = UIViewAutoresizingNone;
     }
     return self;
 }
@@ -113,26 +114,26 @@ static NSInteger ZIndex(id obj)
 #pragma mark SMCalloutViewDelegate
 
 - (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset {
-    
+
     // When the callout is being asked to present in a way where it or its target will be partially offscreen, it asks us
     // if we'd like to reposition our surface first so the callout is completely visible. Here we scroll the map into view,
     // but it takes some math because we have to deal in lon/lat instead of the given offset in pixels.
-    
+
     CLLocationCoordinate2D coordinate = self.region.center;
-    
+
     // where's the center coordinate in terms of our view?
     CGPoint center = [self convertCoordinate:coordinate toPointToView:self];
-    
+
     // move it by the requested offset
     center.x -= offset.width;
     center.y -= offset.height;
-    
+
     // and translate it back into map coordinates
     coordinate = [self convertPoint:center toCoordinateFromView:self];
-    
+
     // move the map!
     [self setCenterCoordinate:coordinate animated:YES];
-    
+
     // tell the callout to wait for a while while we scroll (we assume the scroll delay for MKMapView matches UIScrollView)
     return kSMCalloutViewRepositionDelayForUIScrollView;
 }
@@ -164,10 +165,10 @@ static NSInteger ZIndex(id obj)
 // Allow touches to be sent to our calloutview.
 // See this for some discussion of why we need to override this: https://github.com/nfarina/calloutview/pull/9
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    
+
     UIView *calloutMaybe = [self.callout hitTest:[self.callout convertPoint:point fromView:self] withEvent:event];
     if (calloutMaybe) return calloutMaybe;
-    
+
     return [super hitTest:point withEvent:event];
 }
 
@@ -178,7 +179,7 @@ static NSInteger ZIndex(id obj)
         obj.idx = idx;
     }];
     _clusterData = clusterData;
-    
+
     @synchronized(self)
     {
         self.shouldCluster = NO;
@@ -190,7 +191,7 @@ static NSInteger ZIndex(id obj)
             }else{
                 [weakSelf.coordinateQuadTree clean];
             }
-            
+
             weakSelf.shouldCluster = YES;
             [weakSelf calcuteCluster];
         });
@@ -215,15 +216,15 @@ static NSInteger ZIndex(id obj)
             NSLog(@"cluster calcute not ready.");
             return;
         }
-        
+
         /* 根据当前clusterSize和zoomScale 进行annotation聚合. */
         MAMapRect visibleRect = self.visibleMapRect;
         double zoomScale = self.bounds.size.width / visibleRect.size.width;
-        
+
         __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSArray<Cluster *> *clustered = [weakSelf.coordinateQuadTree clusteredWithinMapRect:visibleRect zoomScale:zoomScale size:self.clusterSize];
-            
+
             weakSelf.onCluster(@{@"clustered":[Convert2Json ClusterArray:clustered]});
         });
     }
@@ -241,7 +242,7 @@ static NSInteger ZIndex(id obj)
     if (!CLLocationCoordinate2DIsValid(region.center)) {
         return;
     }
-    
+
     // If new span values are nil, use old values instead
     if (!region.span.latitudeDelta) {
         region.span.latitudeDelta = self.region.span.latitudeDelta;
@@ -249,7 +250,7 @@ static NSInteger ZIndex(id obj)
     if (!region.span.longitudeDelta) {
         region.span.longitudeDelta = self.region.span.longitudeDelta;
     }
-    
+
     // Animate/move to new position
     [super setRegion:region animated:animated];
 }

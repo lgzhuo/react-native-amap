@@ -10,13 +10,13 @@ Pod::Spec.new do |s|
   s.authors      = { "lgzhuo" => "lgzhuo@126.com" }
   s.homepage     = "https://github.com/lgzhuo/react-native-amap"
   s.license      = "MIT"
-  s.platform     = :ios, "8.0"
+  s.platform     = :ios, "9.0"
 
   s.source       = { :git => "https://github.com/lgzhuo/react-native-amap.git" }
   s.source_files = "lib/ios/RCTAMap/**/*.{h,m}"
 
   s.dependency 'React'
-  s.dependency 'AMapNavi-NO-IDFA'
+  s.dependency 'AMapNavi-NO-IDFA', '~> 6'
   s.dependency 'AMapLocation-NO-IDFA'
   s.dependency 'AMapSearch-NO-IDFA'
 end

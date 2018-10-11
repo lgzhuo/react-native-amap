@@ -64,6 +64,14 @@ RCT_ENUM_CONVERTER(MKMapType, (@{
 
 @implementation AMapViewManager
 
+static AMapView* MapView(id view){
+    if ([view isKindOfClass:[AMapView class]]){
+        return (AMapView*)view;
+    }else{
+        return nil;
+    }
+}
+
 RCT_EXPORT_MODULE(AMap)
 
 -(UIView*)view{
@@ -84,7 +92,7 @@ RCT_EXPORT_VIEW_PROPERTY(onLocationUpdate, RCTDirectEventBlock)
 RCT_CUSTOM_VIEW_PROPERTY(region, MACoordinateRegion, AMapView)
 {
     if (json == nil) return;
-    
+
     [view setRegion:[RCTConvert MACoordinateRegion:json] animated:NO];
 }
 
@@ -93,8 +101,8 @@ RCT_EXPORT_METHOD(centerCoordinate: (nonnull NSNumber *)reactTag
                   coordinate:(CLLocationCoordinate2D)coordinate
                   animated:(BOOL)animated){
   [self.bridge.uiManager addUIBlock:
-   ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, AMapView *> *viewRegistry) {
-     AMapView *view = viewRegistry[reactTag];
+   ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+     AMapView *view = MapView(viewRegistry[reactTag]);
      if (!view || ![view isKindOfClass:[AMapView class]]) {
        RCTLogError(@"Cannot find AMapView with tag #%@", reactTag);
        return;
@@ -105,8 +113,8 @@ RCT_EXPORT_METHOD(centerCoordinate: (nonnull NSNumber *)reactTag
 
 RCT_EXPORT_METHOD(centerUserLocation: (nonnull NSNumber *)reactTag animated:(BOOL)animated){
   [self.bridge.uiManager addUIBlock:
-   ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, AMapView *> *viewRegistry) {
-     AMapView *view = viewRegistry[reactTag];
+   ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+     AMapView *view = MapView(viewRegistry[reactTag]);
      if (!view || ![view isKindOfClass:[AMapView class]]) {
        RCTLogError(@"Cannot find AMapView with tag #%@", reactTag);
        return;
@@ -117,9 +125,10 @@ RCT_EXPORT_METHOD(centerUserLocation: (nonnull NSNumber *)reactTag animated:(BOO
 
 RCT_EXPORT_METHOD(fitAnnotations: (nonnull NSNumber *)reactTag padding:(CGFloat)padding animated:(BOOL)animated){
     [self.bridge.uiManager addUIBlock:
-     ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, AMapView *> *viewRegistry) {
-         AMapView *view = viewRegistry[reactTag];
-         if (!view || ![view isKindOfClass:[AMapView class]]) {
+     ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+         AMapView *view = MapView(viewRegistry[reactTag]);
+
+         if (![view isKindOfClass:[AMapView class]]) {
              RCTLogError(@"Cannot find AMapView with tag #%@", reactTag);
              return;
          }
@@ -142,17 +151,17 @@ RCT_EXPORT_METHOD(fitRegion:(nonnull NSNumber *)reactTag
                   duration:(CGFloat)duration)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        UIView *view = viewRegistry[reactTag];
+        AMapView *view = MapView(viewRegistry[reactTag]);
         if (![view isKindOfClass:[AMapView class]]) {
             RCTLogError(@"Cannot find AMapView with tag #%@", reactTag);
             return;
         }
         if(animate && duration>0){
             [AMapView animateWithDuration:duration/1000 animations:^{
-                [(AMapView*)view setRegion:region animated:YES];
+                [view setRegion:region animated:YES];
             }];
         }else{
-            [(AMapView*)view setRegion:region animated:animate];
+            [view setRegion:region animated:animate];
         }
     }];
 }
@@ -163,12 +172,12 @@ RCT_EXPORT_METHOD(fitCoordinates:(nonnull NSNumber *)reactTag
                   animated:(BOOL)animated)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        UIView *view = viewRegistry[reactTag];
+        AMapView *view = MapView(viewRegistry[reactTag]);
         if (![view isKindOfClass:[AMapView class]]) {
             RCTLogError(@"Cannot find AMapView with tag #%@", reactTag);
             return;
         }
-        
+
         // Create Polyline with coordinates
         NSArray<NSValue*> *coordinateArray = [RCTConvert AMapCoordinateArray:coordinates];
         CLLocationCoordinate2D coords[coordinateArray.count];
@@ -177,13 +186,13 @@ RCT_EXPORT_METHOD(fitCoordinates:(nonnull NSNumber *)reactTag
             [coordinateArray[i] getValue:&coords[i]];
         }
         MAPolyline *polyline = [MAPolyline polylineWithCoordinates:coords count:coordinateArray.count];
-        
+
         CGFloat top = [RCTConvert CGFloat:edgePadding[@"top"]];
         CGFloat right = [RCTConvert CGFloat:edgePadding[@"right"]];
         CGFloat bottom = [RCTConvert CGFloat:edgePadding[@"bottom"]];
         CGFloat left = [RCTConvert CGFloat:edgePadding[@"left"]];
-        
-        [(AMapView*)view setVisibleMapRect:polyline.boundingMapRect edgePadding:UIEdgeInsetsMake(top, left, bottom, right) animated:animated];
+
+        [view setVisibleMapRect:polyline.boundingMapRect edgePadding:UIEdgeInsetsMake(top, left, bottom, right) animated:animated];
     }];
 }
 
