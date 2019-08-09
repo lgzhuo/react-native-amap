@@ -23,12 +23,13 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.views.art.ARTSurfaceViewShadowNode;
 import com.facebook.react.views.art.ARTVirtualNode;
-import rct.amap.cluster.Cluster;
-import rct.amap.cluster.ClusterPoint;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import rct.amap.cluster.Cluster;
+import rct.amap.cluster.ClusterPoint;
 
 /**
  * Created by lgzhuo on 2017/3/16.

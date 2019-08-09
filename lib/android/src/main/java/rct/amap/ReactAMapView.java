@@ -1,22 +1,18 @@
 package rct.amap;
 
 import android.content.Context;
-import android.util.Log;
+import android.location.Location;
 import android.view.View;
 
-import com.amap.api.location.AMapLocation;
-import com.amap.api.location.AMapLocationClient;
-import com.amap.api.location.AMapLocationClientOption;
-import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMapOptions;
 import com.amap.api.maps.CameraUpdateFactory;
-import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.TextureMapView;
 import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
+import com.amap.api.maps.model.MyLocationStyle;
 import com.amap.api.maps.model.Polyline;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -25,16 +21,17 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-import rct.amap.cluster.Cluster;
-import rct.amap.cluster.ClusterComputer;
-import rct.amap.cluster.ClusterPoint;
-import rct.amap.cluster.OnClusterListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import rct.amap.cluster.Cluster;
+import rct.amap.cluster.ClusterComputer;
+import rct.amap.cluster.ClusterPoint;
+import rct.amap.cluster.OnClusterListener;
 
 /**
  * Created by lgzhuo on 2017/3/8.
@@ -43,16 +40,15 @@ import java.util.WeakHashMap;
  * 见react-native-maps issues https://github.com/airbnb/react-native-maps/issues/453
  */
 
-class ReactAMapView extends TextureMapView implements LocationSource, LifecycleEventListener, AMapLocationListener, AMap.OnMarkerClickListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, AMap.OnPolylineClickListener, AMap.OnCameraChangeListener, OnClusterListener, AMap.OnMapLoadedListener {
+class ReactAMapView extends TextureMapView implements LifecycleEventListener, AMap.OnMarkerClickListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, AMap.OnPolylineClickListener, AMap.OnCameraChangeListener, OnClusterListener, AMap.OnMapLoadedListener, AMap.OnMyLocationChangeListener {
 
-    private AMapLocationClient mLocationClient;
-    private LocationSource.OnLocationChangedListener mLocationChangeListener;
     private List<AMapFeature> mFeatureList = new ArrayList<>();
     private Map<Marker, AMapMarker> mMarkerMap = new WeakHashMap<>();
     private Map<Polyline, AMapPolyline> mPolylineMap = new WeakHashMap<>();
     private ClusterComputer mClusterComputer = new ClusterComputer();
     private boolean mMoveOnMarkerPress;
     private LatLngBounds boundsToMove;
+    private MyLocationStyle mLocationStyle;
 
     public ReactAMapView(Context context) {
         super(context);
@@ -73,14 +69,18 @@ class ReactAMapView extends TextureMapView implements LocationSource, LifecycleE
             map.setOnPolylineClickListener(this);
             map.setOnCameraChangeListener(this);
             map.setOnMapLoadedListener(this);
+            map.setOnMyLocationChangeListener(this);
         }
     }
 
     public void setMyLocationEnabled(boolean enabled) {
         AMap map = getMap();
         if (map != null) {
-            map.setLocationSource(this);
-            map.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
+            if (mLocationStyle == null) {
+                mLocationStyle = new MyLocationStyle();
+                mLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER);
+            }
+            map.setMyLocationStyle(mLocationStyle);
             map.setMyLocationEnabled(enabled);
         }
     }
@@ -145,7 +145,6 @@ class ReactAMapView extends TextureMapView implements LocationSource, LifecycleE
     public void onDrop() {
         mClusterComputer.close();
         ((ReactContext) getContext()).removeLifecycleEventListener(this);
-        destroyLocation();
         onDestroy();
     }
 
@@ -168,50 +167,16 @@ class ReactAMapView extends TextureMapView implements LocationSource, LifecycleE
         }
     }
 
-    private AMapLocationClient getLocationClient() {
-        if (mLocationClient == null) {
-            mLocationClient = new AMapLocationClient(getContext());
-            mLocationClient.setLocationListener(this);
-            AMapLocationClientOption locationOption = new AMapLocationClientOption();
-            locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-            mLocationClient.setLocationOption(locationOption);
-        }
-        return mLocationClient;
-    }
-
-    private void startLocation() {
-        getLocationClient().startLocation();
-    }
-
-    private void stopLocation() {
-        if (mLocationClient != null && mLocationClient.isStarted()) {
-            mLocationClient.stopLocation();
-        }
-    }
-
-    private void destroyLocation() {
-        if (mLocationClient != null) {
-            mLocationClient.stopLocation();
-            mLocationClient.onDestroy();
-            mLocationClient = null;
-        }
-    }
-
     /*LifecycleEventListener*/
 
     @Override
     public void onHostResume() {
         onResume();
-        AMap map = getMap();
-        if (map != null && map.isMyLocationEnabled()) {
-            startLocation();
-        }
     }
 
     @Override
     public void onHostPause() {
         onPause();
-        stopLocation();
     }
 
     @Override
@@ -227,17 +192,14 @@ class ReactAMapView extends TextureMapView implements LocationSource, LifecycleE
         return builder.build();
     }
 
-    public AMapLocation getMyLastKnownLocation() {
-        return getLocationClient().getLastKnownLocation();
+    public Location getMyLastKnownLocation() {
+        AMap map = getMap();
+        return map == null ? null : map.getMyLocation();
     }
 
     public LatLng getMyLastKnownLatLng() {
-        AMapLocation location = getMyLastKnownLocation();
-        if (location != null && location.getErrorCode() == 0) {
-            return new LatLng(location.getLatitude(), location.getLongitude());
-        } else {
-            return null;
-        }
+        Location location = getMyLastKnownLocation();
+        return location == null ? null : new LatLng(location.getLatitude(), location.getLongitude());
     }
 
     public void addFeature(View child, int index) {
@@ -273,44 +235,22 @@ class ReactAMapView extends TextureMapView implements LocationSource, LifecycleE
         return mFeatureList.get(index);
     }
 
-     /* LocationSource */
+    /* AMap.OnMyLocationChangeListener */
 
     @Override
-    public void activate(LocationSource.OnLocationChangedListener onLocationChangedListener) {
-        mLocationChangeListener = onLocationChangedListener;
-        startLocation();
-    }
-
-    @Override
-    public void deactivate() {
-        stopLocation();
-    }
-
-    /* AMapLocationListener */
-
-    @Override
-    public void onLocationChanged(AMapLocation aMapLocation) {
-        if (mLocationChangeListener != null && aMapLocation != null) {
-            if (aMapLocation.getErrorCode() == 0) {
-                mLocationChangeListener.onLocationChanged(aMapLocation);
-
-                WritableMap event = Arguments.createMap();
-                WritableMap location = Arguments.createMap();
-                location.putDouble("latitude", aMapLocation.getLatitude());
-                location.putDouble("longitude", aMapLocation.getLongitude());
-                location.putDouble("altitude", aMapLocation.getAltitude());
-                location.putDouble("accuracy", aMapLocation.getAccuracy());
-                location.putDouble("heading", aMapLocation.getBearing());
-                location.putDouble("speed", aMapLocation.getSpeed());
-                location.putDouble("bearing", aMapLocation.getBearing());
-                location.putDouble("timestamp", aMapLocation.getTime());
-                event.putMap("location", location);
-                pushEvent("onLocationUpdate", event);
-            } else {
-                String errText = "定位失败," + aMapLocation.getErrorCode() + ": " + aMapLocation.getErrorInfo();
-                Log.e("AmapErr", errText);
-            }
-        }
+    public void onMyLocationChange(Location loc) {
+        WritableMap event = Arguments.createMap();
+        WritableMap location = Arguments.createMap();
+        location.putDouble("latitude", loc.getLatitude());
+        location.putDouble("longitude", loc.getLongitude());
+        location.putDouble("altitude", loc.getAltitude());
+        location.putDouble("accuracy", loc.getAccuracy());
+        location.putDouble("heading", loc.getBearing());
+        location.putDouble("speed", loc.getSpeed());
+        location.putDouble("bearing", loc.getBearing());
+        location.putDouble("timestamp", loc.getTime());
+        event.putMap("location", location);
+        pushEvent("onLocationUpdate", event);
     }
 
     /* AMap.OnMarkerClickListener */

@@ -13,15 +13,16 @@ import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
-import rct.amap.cluster.ClusterPoint;
-import rct.amap.helper.ReadableArrayWrapper;
-import rct.amap.helper.ReadableMapWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import rct.amap.cluster.ClusterPoint;
+import rct.amap.helper.ReadableArrayWrapper;
+import rct.amap.helper.ReadableMapWrapper;
 
 /**
  * Created by lgzhuo on 2017/3/7.

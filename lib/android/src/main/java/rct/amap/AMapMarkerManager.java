@@ -11,12 +11,13 @@ import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
-import rct.amap.helper.ReadableMapWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import rct.amap.helper.ReadableMapWrapper;
 
 /**
  * Created by lgzhuo on 2017/3/9.
