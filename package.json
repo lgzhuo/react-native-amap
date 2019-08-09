@@ -7,9 +7,7 @@
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "start:android": "adb shell am start -n rct.amap.example/.MainActivity",
     "run:android": "./gradlew installDebug && npm run start:android",
-    "run:ios": "react-native run-ios --project-path ./example/ios",
-    "lint": "eslint .",
-    "preversion": "./scripts/update-version.js"
+    "run:ios": "react-native run-ios --project-path ./example/ios"
   },
   "peerDependencies": {
     "react": "*",
