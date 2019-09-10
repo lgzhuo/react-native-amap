@@ -92,9 +92,9 @@ class AMapMarkerManager extends ViewGroupManager<AMapMarker> {
 
     @ReactProp(name = "calloutOffset")
     public void setCalloutOffset(AMapMarker view, ReadableMap map) {
-        map = ReadableMapWrapper.wrap(map);
-        int offsetX = map.getInt("x");
-        int offsetY = map.getInt("y");
+        ReadableMapWrapper safeMap = ReadableMapWrapper.wrap(map);
+        int offsetX = safeMap.getInt("x");
+        int offsetY = safeMap.getInt("y");
         view.setInfoWindowOffset(offsetX, offsetY);
     }
 

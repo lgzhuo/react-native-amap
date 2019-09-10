@@ -198,7 +198,6 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
             promise.reject("-1", "上次定位未结束");
         } else {
             mLocationPromise = promise;
-            props = ReadableMapWrapper.wrap(props);
             AMapLocationClientOption option = new AMapLocationClientOption();
             option.setOnceLocationLatest(true);
             option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
@@ -225,12 +224,12 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
     /* poiSearch */
     @ReactMethod
     public void poiSearch(ReadableMap props, final Promise promise) {
-        props = ReadableMapWrapper.wrap(props);
-        String keyWord = props.getString("keyWord");
-        String city = props.getString("city");
-        int pageSize = props.getInt("pageSize");
-        int pageNum = props.getInt("pageNum");
-        boolean cityLimit = props.getBoolean("cityLimit");
+        ReadableMapWrapper safeProps = ReadableMapWrapper.wrap(props);
+        String keyWord = safeProps.getString("keyWord");
+        String city = safeProps.getString("city");
+        int pageSize = safeProps.getInt("pageSize");
+        int pageNum = safeProps.getInt("pageNum");
+        boolean cityLimit = safeProps.getBoolean("cityLimit");
         PoiSearch.Query query = new PoiSearch.Query(keyWord, "", city);
         query.setPageSize(pageSize);
         query.setPageNum(pageNum);

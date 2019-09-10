@@ -154,12 +154,12 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
             }
             break;
             case FIT_REGION: {
-                args = ReadableArrayWrapper.wrap(args);
-                ReadableMap region = args.getMap(0);
+                ReadableArrayWrapper safeArgs = ReadableArrayWrapper.wrap(args);
+                ReadableMap region = safeArgs.getMap(0);
                 if (region == null)
                     break;
-                boolean animate = args.getBoolean(1);
-                int duration = args.getInt(2);
+                boolean animate = safeArgs.getBoolean(1);
+                int duration = safeArgs.getInt(2);
                 double lng = region.getDouble("longitude");
                 double lat = region.getDouble("latitude");
                 double lngDelta = region.getDouble("longitudeDelta");
@@ -172,19 +172,19 @@ class AMapManager extends ViewGroupManager<ReactAMapView> {
             }
             break;
             case FIT_COORDINATES: {
-                args = ReadableArrayWrapper.wrap(args);
-                ReadableArray coordinates = args.getArray(0);
+                ReadableArrayWrapper safeArgs = ReadableArrayWrapper.wrap(args);
+                ReadableArray coordinates = safeArgs.getArray(0);
                 if (coordinates == null || coordinates.size() == 0)
                     break;
                 LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
                 for (int i = 0; i < coordinates.size(); i++) {
-                    ReadableMap map = ReadableMapWrapper.wrap(coordinates.getMap(i));
+                    ReadableMapWrapper map = ReadableMapWrapper.wrap(coordinates.getMap(i));
                     double latitude = map.getDouble("latitude");
                     double longitude = map.getDouble("longitude");
                     boundBuilder.include(new LatLng(latitude, longitude));
                 }
-                ReadableMap edgePadding = ReadableMapWrapper.wrap(args.getMap(1));
-                boolean animate = args.getBoolean(2);
+                ReadableMapWrapper edgePadding = ReadableMapWrapper.wrap(safeArgs.getMap(1));
+                boolean animate = safeArgs.getBoolean(2);
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundBuilder.build(), 50);
                 root.setPadding(edgePadding.getInt("left"), edgePadding.getInt("top"), edgePadding.getInt("right"), edgePadding.getInt("bottom"));
                 AMapCommandHelper.updateCamera(root, cameraUpdate, animate);
