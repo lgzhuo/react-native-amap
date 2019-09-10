@@ -15,7 +15,6 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.SystemClock;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.react.modules.location.PositionError;
 
 /**
  * Created by lgzhuo on 2017/8/7.
@@ -124,16 +123,12 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
     }
 
     private static WritableMap buildPositionError(int errorCode, String errorMessage) {
-        int positionErrorCode;
-        switch (errorCode) {
-            case AMapLocation.ERROR_CODE_FAILURE_LOCATION_PERMISSION:
-                positionErrorCode = PositionError.PERMISSION_DENIED;
-                break;
-            default:
-                positionErrorCode = PositionError.POSITION_UNAVAILABLE;
-                break;
+        WritableMap error = Arguments.createMap();
+        error.putInt("code", errorCode);
+        if (errorMessage != null) {
+            error.putString("message", errorMessage);
         }
-        return PositionError.buildError(positionErrorCode, errorMessage);
+        return error;
     }
 
     private static class LocationOptions {
@@ -195,7 +190,7 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
             public void run() {
                 synchronized (SingleUpdateRequest.this) {
                     if (!mTriggered) {
-                        mError.invoke(PositionError.buildError(PositionError.TIMEOUT, "Location request timed out"));
+                        mError.invoke(buildPositionError(3, "Location request timed out"));
                         mLocationManager.removeLocationUpdate(mLocationListener);
                         mTriggered = true;
                     }
