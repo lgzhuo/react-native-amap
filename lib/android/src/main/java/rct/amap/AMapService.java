@@ -24,6 +24,7 @@ import com.amap.api.navi.model.AimLessModeStat;
 import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
 import com.amap.api.services.core.AMapException;
+import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.autonavi.tbt.TrafficFacilityInfo;
@@ -226,15 +227,49 @@ class AMapService extends ReactContextBaseJavaModule implements AMapNaviListener
     public void poiSearch(ReadableMap props, final Promise promise) {
         ReadableMapWrapper safeProps = ReadableMapWrapper.wrap(props);
         String keyWord = safeProps.getString("keyWord");
+        String type = safeProps.getString("type");
         String city = safeProps.getString("city");
         int pageSize = safeProps.getInt("pageSize");
         int pageNum = safeProps.getInt("pageNum");
         boolean cityLimit = safeProps.getBoolean("cityLimit");
-        PoiSearch.Query query = new PoiSearch.Query(keyWord, "", city);
+        PoiSearch.Query query = new PoiSearch.Query(keyWord, type, city);
         query.setPageSize(pageSize);
         query.setPageNum(pageNum);
         query.setCityLimit(cityLimit);
         final PoiSearch search = new PoiSearch(getReactApplicationContext(), query);
+
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    PoiResult result = search.searchPOI();
+                    promise.resolve(AMapUtils.PoiResultConvert.cnv(result));
+                } catch (AMapException e) {
+                    e.printStackTrace();
+                    promise.reject(e);
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void poiAroundSearch(ReadableMap props, final Promise promise) {
+        ReadableMapWrapper safeProps = ReadableMapWrapper.wrap(props);
+        String keyWord = safeProps.getString("keyWord");
+        String types = safeProps.getString("types");
+        String city = safeProps.getString("city");
+        int pageSize = safeProps.getInt("pageSize");
+        int pageNum = safeProps.getInt("pageNum");
+        PoiSearch.Query query = new PoiSearch.Query(keyWord, types, city);
+        query.setPageSize(pageSize);
+        query.setPageNum(pageNum);
+        query.setDistanceSort(true);
+        LatLonPoint location = AMapUtils.LatLonPointConvert.cnv(safeProps.getMap("location"));
+        int radius = safeProps.getInt("radius");
+        PoiSearch.SearchBound bound = new PoiSearch.SearchBound(location, radius, true);
+        final PoiSearch search = new PoiSearch(getReactApplicationContext(), query);
+        search.setBound(bound);
+
         executorService.execute(new Runnable() {
             @Override
             public void run() {

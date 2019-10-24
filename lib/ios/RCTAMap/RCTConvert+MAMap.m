@@ -57,4 +57,8 @@ RCT_ARRAY_CONVERTER(ClusterPoint)
         [self MACoordinateSpan:json]
     };
 }
+
++ (id)AMapGeoPoint:(id)json{
+    return [AMapGeoPoint locationWithLatitude:[self CGFloat:json[@"latitude"]] longitude:[self CGFloat:json[@"longitude"]]];
+}
 @end

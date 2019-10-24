@@ -115,6 +115,7 @@ public class AMapLocationModule extends ReactContextBaseJavaModule {
             regeocode.putString("province", location.getProvince());
             regeocode.putString("street", location.getStreet());
             regeocode.putString("streetNum", location.getStreetNum());
+            regeocode.putString("poiName", location.getPoiName());
 
             map.putMap("regeocode", regeocode);
         }

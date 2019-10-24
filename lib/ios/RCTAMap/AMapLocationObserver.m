@@ -54,7 +54,9 @@ typedef struct {
              @"poiName":self.POIName?:[NSNull null],
              @"province":self.province?:[NSNull null],
              @"street":self.street?:[NSNull null],
-             @"streetNum":self.number?:[NSNull null]};
+             @"streetNum":self.number?:[NSNull null],
+             @"poiName":self.POIName?:[NSNull null]
+             };
 }
 
 @end

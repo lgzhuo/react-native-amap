@@ -135,7 +135,9 @@ JSON_ARRAY_CONVERTER(Cluster)
              @"email":poi.email?poi.email:[NSNull null],
              @"enter":poi.enterLocation?[self AMapGeoPoint:poi.enterLocation]:[NSNull null],
              @"exit":poi.exitLocation?[self AMapGeoPoint:poi.exitLocation]:[NSNull null],
-             @"location":poi.location?[self AMapGeoPoint:poi.location]:[NSNull null]};
+             @"location":poi.location?[self AMapGeoPoint:poi.location]:[NSNull null],
+             @"address":poi.address?poi.address:[NSNull null]
+             };
 }
 
 JSON_ARRAY_CONVERTER(AMapPOI);

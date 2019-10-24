@@ -42,12 +42,12 @@
 }
 @end
 
-@interface AMapPOIKeywordsSearchRequest(RCTAMap)
+@interface AMapPOISearchBaseRequest(RCTAMap)
 @property(nonatomic,copy)RCTPromiseRejectBlock reject;
 @property(nonatomic,copy)RCTPromiseResolveBlock resolve;
 @end
 
-@implementation AMapPOIKeywordsSearchRequest(RCTAMap)
+@implementation AMapPOISearchBaseRequest(RCTAMap)
 -(void)setReject:(RCTPromiseRejectBlock)_reject{
     objc_setAssociatedObject(self, @selector(reject), _reject, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
@@ -231,10 +231,24 @@ RCT_EXPORT_METHOD(poiSearch:(NSDictionary*)props resolver:(RCTPromiseResolveBloc
     request.city = [RCTConvert NSString:props[@"city"]];
     request.cityLimit = [RCTConvert BOOL:props[@"cityLimit"]];
     request.offset = [RCTConvert NSInteger:props[@"pageSize"]];
-    request.page = [RCTConvert NSInteger:props[@"pageNum"]] +1;
+    request.page = [RCTConvert NSInteger:props[@"pageNum"]];
     request.reject = reject;
     request.resolve = resolve;
     [self.searchApi AMapPOIKeywordsSearch:request];
+}
+
+RCT_EXPORT_METHOD(poiAroundSearch:(NSDictionary*)props resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    AMapPOIAroundSearchRequest *request = [[AMapPOIAroundSearchRequest alloc] init];
+    request.keywords = [RCTConvert NSString:props[@"keyWord"]];
+    request.types = [RCTConvert NSString:props[@"types"]];
+    request.location = [RCTConvert AMapGeoPoint:props[@"location"]];
+    request.radius = [RCTConvert NSInteger:props[@"radius"]];
+    request.city = [RCTConvert NSString:props[@"city"]];
+    request.offset = [RCTConvert NSInteger:props[@"pageSize"]];
+    request.page = [RCTConvert NSInteger:props[@"pageNum"]];
+    request.reject = reject;
+    request.resolve = resolve;
+    [self.searchApi AMapPOIAroundSearch: request];
 }
 
 RCT_EXPORT_METHOD(callAMapRoute:(NSDictionary*)props){
@@ -486,7 +500,7 @@ RCT_EXPORT_METHOD(callBaiduMapRoute:(NSDictionary*)props){
  * @param request  发起的请求，具体字段参考 AMapPOISearchBaseRequest 及其子类。
  * @param response 响应结果，具体字段参考 AMapPOISearchResponse 。
  */
-- (void)onPOISearchDone:(AMapPOIKeywordsSearchRequest *)request response:(AMapPOISearchResponse *)response{
+- (void)onPOISearchDone:(AMapPOISearchBaseRequest *)request response:(AMapPOISearchResponse *)response{
     if (request.resolve) {
         request.resolve([Convert2Json AMapPOISearchResponse:response]);
     }

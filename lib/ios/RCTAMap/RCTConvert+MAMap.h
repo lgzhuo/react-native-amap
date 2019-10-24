@@ -11,6 +11,7 @@
 #import <AMapNaviKit/AMapNaviKit.h>
 #import "ClusterPoint.h"
 #import "AMapCoordinate.h"
+#import <AMapSearchKit/AMapSearchKit.h>
 
 @interface RCTConvert (MAMap)
 + (NSValue *)AMapCoordinate:(id)json;
@@ -25,4 +26,6 @@
 
 + (MACoordinateSpan)MACoordinateSpan:(id)json;
 + (MACoordinateRegion)MACoordinateRegion:(id)json;
+
++ (AMapGeoPoint *)AMapGeoPoint:(id)json;
 @end

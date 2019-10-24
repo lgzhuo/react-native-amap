@@ -612,6 +612,44 @@ async function poiSearch(props: POISearchProps): Promise<POISearchResponse> {
     return await AMS.poiSearch({pageSize: 10, pageNum: 0, cityLimit: true, ...props})
 }
 
+function poiAroundSearch(props: {
+  keyWord: string,
+  types: string,
+  city: string,
+  location: {
+    latitude: number,
+    longitude: number
+  },
+  radius: number,
+  pageSize: number,
+  pageNum: number, // from 1
+}): Promise<{
+  adCode: string,
+  adName: string,
+  businessAres: string,
+  cityCode: string,
+  cityName: string,
+  direction: string,
+  distance: number,
+  email: string,
+  enter: {
+    latitude: number,
+    longitude: number
+  },
+  exit: {
+    latitude: number,
+    longitude: number
+  },
+  location: {
+    latitude: number,
+    longitude: number
+  },
+  title: string,
+  address: string
+}> {
+  return AMS.poiAroundSearch({ pageSize: 10, pageNum: 0, ...props });
+}
+
 function startNavi(props: StartNaviProps) {
     AMS.startNavi({type, ...props})
 }
@@ -620,6 +658,7 @@ export default {
     calculateNaviDriveRoute,
     calculateNaviWalkRoute,
     poiSearch,
+    poiAroundSearch,
     startNavi,
     amapRoute,
     amapMark,

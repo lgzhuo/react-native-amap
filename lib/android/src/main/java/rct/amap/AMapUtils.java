@@ -177,6 +177,7 @@ class AMapUtils {
             itemMap.putMap("exit", LatLonPointConvert.cnv(poiItem.getExit()));
             itemMap.putMap("location", LatLonPointConvert.cnv(poiItem.getLatLonPoint()));
             itemMap.putString("title", poiItem.getTitle());
+            itemMap.putString("address", poiItem.getSnippet());
             return itemMap;
         }
     };
