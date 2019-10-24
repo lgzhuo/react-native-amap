@@ -158,6 +158,15 @@ class AMapUtils {
             latLngMap.putDouble("longitude", latLonPoint.getLongitude());
             return latLngMap;
         }
+
+        @Override
+        public LatLonPoint cnv(ReadableMap map) {
+            if (map == null) return null;
+            double latitude = map.getDouble("latitude");
+            double longitude = map.getDouble("longitude");
+            LatLonPoint point = new LatLonPoint(latitude, longitude);
+            return point;
+        }
     };
 
     static final Convert<PoiItem> PoiItemConvert = new SimpleConvert<PoiItem>() {
