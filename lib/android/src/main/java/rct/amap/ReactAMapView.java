@@ -3,9 +3,9 @@ package rct.amap;
 import android.content.Context;
 import android.location.Location;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.AMapOptions;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.TextureMapView;
 import com.amap.api.maps.model.CameraPosition;
@@ -50,12 +50,21 @@ class ReactAMapView extends TextureMapView implements LifecycleEventListener, AM
     private LatLngBounds boundsToMove;
     private MyLocationStyle mLocationStyle;
 
+    private ViewAttacherGroup attacherGroup;
+
     public ReactAMapView(Context context) {
         super(context);
-    }
 
-    public ReactAMapView(Context context, AMapOptions aMapOptions) {
-        super(context, aMapOptions);
+        // Set up a parent view for triggering visibility in subviews that depend on it.
+        // Mainly ReactImageView depends on Fresco which depends on onVisibilityChanged() event
+        attacherGroup = new ViewAttacherGroup(context);
+        LayoutParams attacherLayoutParams = new LayoutParams(0, 0);
+        attacherLayoutParams.width = 0;
+        attacherLayoutParams.height = 0;
+        attacherLayoutParams.leftMargin = 99999999;
+        attacherLayoutParams.topMargin = 99999999;
+        attacherGroup.setLayoutParams(attacherLayoutParams);
+        addView(attacherGroup);
     }
 
     public void setUp() {
@@ -209,6 +218,26 @@ class ReactAMapView extends TextureMapView implements LifecycleEventListener, AM
 
             if (child instanceof AMapMarker) {
                 AMapMarker aMarker = (AMapMarker) child;
+
+                // Allow visibility event to be triggered later
+                int visibility = aMarker.getVisibility();
+                aMarker.setVisibility(INVISIBLE);
+
+                // Remove from a view group if already present, prevent "specified child
+                // already had a parent" error.
+                ViewGroup annotationParent = (ViewGroup) aMarker.getParent();
+                if (annotationParent != null) {
+                    annotationParent.removeView(aMarker);
+                }
+
+                // Add to the parent group
+                attacherGroup.addView(aMarker);
+
+                // Trigger visibility event if necessary.
+                // With some testing, seems like it is not always
+                //   triggered just by being added to a parent view.
+                aMarker.setVisibility(visibility);
+
                 mMarkerMap.put(aMarker.getFeature(), aMarker);
             } else if (child instanceof AMapPolyline) {
                 AMapPolyline aPolyline = (AMapPolyline) child;
@@ -221,7 +250,9 @@ class ReactAMapView extends TextureMapView implements LifecycleEventListener, AM
         AMapFeature feature = mFeatureList.remove(index);
         feature.removeFromMap(getMap());
         if (feature instanceof AMapMarker) {
-            mMarkerMap.remove(((AMapMarker) feature).getFeature());
+            AMapMarker aMarker = (AMapMarker) feature;
+            mMarkerMap.remove(aMarker.getFeature());
+            attacherGroup.removeView(aMarker);
         } else if (feature instanceof AMapPolyline) {
             mPolylineMap.remove(((AMapPolyline) feature).getFeature());
         }
